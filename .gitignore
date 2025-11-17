@@ -1,0 +1,57 @@
+# Fichiers système
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Dossiers de build et dépendances
+node_modules/
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Bases de données SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Python (pour Auth Service - TP 03)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Coverage et tests
+coverage/
+.nyc_output/
+.pytest_cache/
+.coverage
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.cache/
+
+docs/tp/
+.cursor/
