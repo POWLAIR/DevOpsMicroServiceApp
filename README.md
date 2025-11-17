@@ -10,12 +10,48 @@ Application microservices avec API Gateway Next.js, Auth Service FastAPI et Orde
 
 ## Structure du projet
 
+Ce repo parent utilise des **submodules Git** pour regrouper les 3 services sans duplication de code :
+
 ```
 DevOpsMicroServiceApp/
-├── frontend/          # Frontend + API Gateway (Next.js)
-├── auth-service/      # Auth Service (FastAPI) - TP 03
-├── order-service/     # Order Service (NestJS) - TP 04
+├── frontend/          # Frontend + API Gateway (Next.js) [submodule]
+├── auth-service/      # Auth Service (FastAPI) - TP 03 [submodule]
+├── order-service/     # Order Service (NestJS) - TP 04 [submodule]
 └── docs/             # Documentation
+```
+
+### Cloner le repo avec les submodules
+
+```bash
+# Cloner le repo parent
+git clone <url-repo-parent> DevOpsMicroServiceApp
+cd DevOpsMicroServiceApp
+
+# Initialiser et cloner les submodules
+git submodule update --init --recursive
+```
+
+### Mettre à jour les submodules
+
+```bash
+# Mettre à jour tous les submodules vers leur dernière version
+git submodule update --remote
+
+# Commiter les mises à jour dans le repo parent
+git commit -am "DEVOP- : [repo-parent] update submodules"
+git push
+```
+
+### Travailler sur un service
+
+Les services sont des repos Git indépendants. Pour travailler sur un service :
+
+```bash
+cd frontend  # ou auth-service, order-service
+# Faire vos modifications, commits, pushes comme d'habitude
+git add .
+git commit -m "DEVOP-XXX : [frontend] votre message"
+git push origin main
 ```
 
 ## Prérequis
