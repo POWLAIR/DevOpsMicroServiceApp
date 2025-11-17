@@ -24,7 +24,7 @@ DevOpsMicroServiceApp/
 
 ```bash
 # Cloner le repo parent
-git clone <url-repo-parent> DevOpsMicroServiceApp
+git clone git@gitea.com:PowlAIR/DevOpsMicoServiceApp.git DevOpsMicroServiceApp
 cd DevOpsMicroServiceApp
 
 # Initialiser et cloner les submodules
