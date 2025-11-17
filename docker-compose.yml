@@ -1,0 +1,91 @@
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - auth-db:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/auth.db
+      - SECRET_KEY=${JWT_SECRET}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CORS_ORIGINS=http://localhost:3001
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    ports:
+      - "3000:3000"
+    volumes:
+      - order-db:/app/data
+    environment:
+      - DATABASE_PATH=./data/orders.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ALGORITHM=HS256
+      - PORT=3000
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - CORS_ORIGINS=http://localhost:3001
+      - AUTH_SERVICE_URL=http://auth-service:8000
+    networks:
+      - microservices-network
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:3001
+    container_name: frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - AUTH_SERVICE_URL=http://auth-service:8000
+      - ORDER_SERVICE_URL=http://order-service:3000
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    networks:
+      - microservices-network
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  auth-db:
+    driver: local
+  order-db:
+    driver: local
+
+networks:
+  microservices-network:
+    driver: bridge
