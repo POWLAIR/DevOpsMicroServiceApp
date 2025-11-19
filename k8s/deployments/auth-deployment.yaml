@@ -16,75 +16,74 @@ spec:
         app: auth-service
     spec:
       containers:
-      - name: auth-service
-        image: auth-service:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: DATABASE_URL
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: SECRET_KEY
-        - name: ALGORITHM
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: ALGORITHM
-        - name: ACCESS_TOKEN_EXPIRE_MINUTES
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: ACCESS_TOKEN_EXPIRE_MINUTES
-        - name: HOST
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: HOST
-        - name: PORT
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: PORT
-        - name: CORS_ORIGINS
-          valueFrom:
-            configMapKeyRef:
-              name: auth-config
-              key: CORS_ORIGINS
-        volumeMounts:
-        - name: auth-storage
-          mountPath: /app/data
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
+        - name: auth-service
+          image: powlker/auth-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: SECRET_KEY
+            - name: ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: ALGORITHM
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: ACCESS_TOKEN_EXPIRE_MINUTES
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: PORT
+            - name: CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: CORS_ORIGINS
+          volumeMounts:
+            - name: auth-storage
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
       volumes:
-      - name: auth-storage
-        persistentVolumeClaim:
-          claimName: auth-pvc
-
+        - name: auth-storage
+          persistentVolumeClaim:
+            claimName: auth-pvc

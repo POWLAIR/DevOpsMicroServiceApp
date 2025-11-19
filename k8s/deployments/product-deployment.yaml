@@ -1,31 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-deployment
+  name: product-deployment
   namespace: microservices
   labels:
-    app: order-service
+    app: product-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-service
+      app: product-service
   template:
     metadata:
       labels:
-        app: order-service
+        app: product-service
     spec:
       containers:
-        - name: order-service
-          image: powlker/order-service:latest
+        - name: product-service
+          image: powlker/product-service:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 4000
           env:
             - name: DATABASE_PATH
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: DATABASE_PATH
             - name: JWT_SECRET
               valueFrom:
@@ -35,35 +35,40 @@ spec:
             - name: JWT_ALGORITHM
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: JWT_ALGORITHM
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: PORT
             - name: HOST
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: HOST
             - name: NODE_ENV
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: NODE_ENV
             - name: CORS_ORIGINS
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: CORS_ORIGINS
             - name: AUTH_SERVICE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: order-config
+                  name: product-config
                   key: AUTH_SERVICE_URL
+            - name: FAKESTORE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: FAKESTORE_API_URL
           volumeMounts:
-            - name: order-storage
+            - name: product-storage
               mountPath: /app/data
           resources:
             requests:
@@ -75,7 +80,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: 4000
             initialDelaySeconds: 40
             periodSeconds: 10
             timeoutSeconds: 5
@@ -83,12 +88,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: 4000
             initialDelaySeconds: 20
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
       volumes:
-        - name: order-storage
+        - name: product-storage
           persistentVolumeClaim:
-            claimName: order-pvc
+            claimName: product-pvc

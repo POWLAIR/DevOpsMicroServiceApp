@@ -47,7 +47,7 @@ cd DevOpsMicroServiceApp
 git submodule update --init --recursive
 ```
 
-✅ **Vérification** : Vous devriez voir 3 dossiers : `frontend/`, `auth-service/`, `order-service/`
+✅ **Vérification** : Vous devriez voir 4 dossiers : `frontend/`, `auth-service/`, `order-service/`, `product-service/`
 
 ### ⚙️ Étape 2 : Installer les dépendances
 
@@ -57,6 +57,7 @@ Installer les dépendances de chaque service :
 (cd frontend && npm install) # Installer les dépendances de Next.js
 (cd auth-service && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt) # Installer les dépendances de FastAPI
 (cd order-service && npm install) # Installer les dépendances de NestJS
+(cd product-service && npm install) # Installer les dépendances de NestJS (product-service)
 ```
 
 ### 🔐 Étape 3 : Configurer les variables d'environnement
@@ -67,6 +68,7 @@ Installer les dépendances de chaque service :
 (cd frontend && cp .env.example .env.local)
 (cd auth-service && cp .env.example .env)
 (cd order-service && cp .env.example .env)
+(cd product-service && cp .env.example .env)
 ```
 
 #### 3.2 Configurer les variables
@@ -79,6 +81,7 @@ Installer les dépendances de chaque service :
 ```env
 AUTH_SERVICE_URL=http://localhost:8000
 ORDER_SERVICE_URL=http://localhost:3000
+PRODUCT_SERVICE_URL=http://localhost:4000
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
@@ -106,13 +109,27 @@ CORS_ORIGINS=http://localhost:3001,http://localhost:3000
 AUTH_SERVICE_URL=http://localhost:8000
 ```
 
-⚠️ **Important** : `JWT_SECRET` dans Order Service doit être **identique** à `SECRET_KEY` dans Auth Service.
+**Product Service (`.env`)** :
+
+```env
+DATABASE_PATH=./products.db
+JWT_SECRET=dev-secret-key-change-in-production
+JWT_ALGORITHM=HS256
+PORT=4000
+HOST=0.0.0.0
+NODE_ENV=development
+CORS_ORIGINS=http://localhost:3001,http://localhost:3000
+AUTH_SERVICE_URL=http://localhost:8000
+FAKESTORE_API_URL=https://fakestoreapi.com
+```
+
+⚠️ **Important** : `JWT_SECRET` dans Order Service et Product Service doit être **identique** à `SECRET_KEY` dans Auth Service.
 
 </details>
 
 ### ▶️ Étape 4 : Lancer les services
 
-Ouvrez **3 terminaux séparés** et lancez les services dans cet ordre :
+Ouvrez **4 terminaux séparés** et lancez les services dans cet ordre :
 
 **Terminal 1 - Auth Service (port 8000)** :
 
@@ -133,7 +150,16 @@ npm run start:dev
 
 ✅ Vous devriez voir : `Nest application successfully started`
 
-**Terminal 3 - Frontend (port 3001)** :
+**Terminal 3 - Product Service (port 4000)** :
+
+```bash
+cd DevOpsMicroServiceApp/product-service
+npm run start:dev
+```
+
+✅ Vous devriez voir : `Nest application successfully started`
+
+**Terminal 4 - Frontend (port 3001)** :
 
 ```bash
 cd DevOpsMicroServiceApp/frontend
@@ -144,7 +170,7 @@ npm run dev
 
 ### ✅ Étape 5 : Vérifier que tout fonctionne
 
-Une fois les 3 services démarrés, testez les URLs suivantes :
+Une fois les 4 services démarrés, testez les URLs suivantes :
 
 - **Frontend** : [http://localhost:3001](http://localhost:3001)
 - **Auth Service** : [http://localhost:8000](http://localhost:8000)
@@ -152,6 +178,8 @@ Une fois les 3 services démarrés, testez les URLs suivantes :
   - Health Check : [http://localhost:8000/health](http://localhost:8000/health)
 - **Order Service** : [http://localhost:3000](http://localhost:3000)
   - Health Check : [http://localhost:3000/health](http://localhost:3000/health)
+- **Product Service** : [http://localhost:4000](http://localhost:4000)
+  - Health Check : [http://localhost:4000/health](http://localhost:4000/health)
 
 ### 🎯 Test rapide
 
@@ -203,7 +231,7 @@ echo "JWT_SECRET=dev-secret-key-change-in-production" > .env
 docker-compose up --build
 ```
 
-✅ **Résultat** : Les 3 services démarrent automatiquement dans des conteneurs Docker.
+✅ **Résultat** : Les 4 services démarrent automatiquement dans des conteneurs Docker.
 
 ### Commandes utiles Docker
 
@@ -252,7 +280,20 @@ Les URLs sont identiques à la version locale :
 <details>
 <summary><strong>▶️ Cliquer pour afficher les étapes de déploiement sur Kubernetes</strong></summary>
 
-Pour déployer l'application sur un cluster Kubernetes local (Minikube ou Orbstack) :
+Pour déployer l'application sur un cluster Kubernetes local (Minikube ou Orbstack).
+
+### 📝 Note importante sur product-service
+
+Selon les consignes du TP, **product-service** doit avoir :
+
+- ✅ Deployment configuré
+- ✅ Service (ClusterIP)
+- ✅ ConfigMap + Secret (JWT)
+- ✅ PersistentVolumeClaim
+- ✅ **Image poussée sur Docker Hub** (requis)
+- ✅ Déployable avec `kubectl apply -f k8s/`
+
+L'image **powlker/product-service:latest** doit être disponible sur Docker Hub pour que le déploiement fonctionne.
 
 ### Prérequis Kubernetes
 
@@ -278,42 +319,51 @@ minikube start
 # Activer l'Ingress
 minikube addons enable ingress
 
+# Se connecter à Docker Hub (IMPORTANT pour product-service)
+docker login --username <votre-username-dockerhub>
+
 # Configurer Docker pour utiliser le daemon Minikube
 eval $(minikube docker-env)
 ```
+
+⚠️ **Important** : Remplacez `powlker` par votre username Docker Hub dans les commandes suivantes.
 
 #### Déploiement sur Minikube
 
 Une fois Minikube installé et configuré, suivez ces étapes pour déployer l'application :
 
 ```bash
-# 1. Construire les images Docker (dans le contexte Minikube)
+# 1. Construire les images Docker locales
 (cd auth-service && docker build -t auth-service:latest .)
 (cd order-service && docker build -t order-service:latest .)
 (cd frontend && docker build -t frontend:latest .)
 
-# 2. Créer le namespace
+# 2. Construire et pusher l'image product-service sur Docker Hub (requis par les consignes)
+(cd product-service && docker build -t powlker/product-service:latest .)
+docker push powlker/product-service:latest
+
+# 3. Créer le namespace
 kubectl apply -f k8s/namespace.yaml
 
-# 3. Créer les ConfigMaps
+# 4. Créer les ConfigMaps
 kubectl apply -f k8s/configmaps/
 
-# 4. Créer le Secret JWT
+# 5. Créer le Secret JWT
 kubectl create secret generic jwt-secret \
   --from-literal=SECRET_KEY=dev-secret-key-change-in-production \
   --from-literal=JWT_SECRET=dev-secret-key-change-in-production \
   -n microservices
 
-# 5. Créer les PersistentVolumeClaims
+# 6. Créer les PersistentVolumeClaims
 kubectl apply -f k8s/persistent-volumes/
 
-# 6. Créer les Deployments
+# 7. Créer les Deployments
 kubectl apply -f k8s/deployments/
 
-# 7. Créer les Services
+# 8. Créer les Services
 kubectl apply -f k8s/services/
 
-# 8. Créer l'Ingress
+# 9. Créer l'Ingress
 kubectl apply -f k8s/ingress/
 ```
 
@@ -580,7 +630,7 @@ kubectl describe pod <pod-name> -n microservices
 
 ### Astuces
 
-- Gardez les 3 terminaux ouverts pendant le développement (méthode locale)
+- Gardez les 4 terminaux ouverts pendant le développement (méthode locale)
 - Les services redémarrent automatiquement lors des modifications (hot reload)
 - Les bases de données SQLite sont créées automatiquement au premier démarrage
 - Consultez les logs dans chaque terminal pour le debugging
