@@ -1,24 +1,28 @@
 # DevOps MicroService App
 
-Application microservices avec API Gateway Next.js, Auth Service FastAPI et Order Service NestJS.
+Application microservices E-commerce avec API Gateway Next.js, Auth Service FastAPI, Product Service et Order Service NestJS.
 
 > 🚀 **Nouveau sur le projet ?** Consultez le [Guide de Démarrage Rapide](docs/QUICKSTART.md) pour lancer l'application en 5 minutes !
 
 ## Architecture
 
-- **Frontend/API Gateway** (Next.js) - Point d'entrée unique
+- **Frontend/API Gateway** (Next.js) - Point d'entrée unique avec catalogue produits
 - **Auth Service** (Python FastAPI + SQLite) - Authentification et autorisation
+- **Product Service** (NestJS + SQLite) - Catalogue produits, favoris, avis (TP 07)
 - **Order Service** (NestJS + SQLite) - Gestion des commandes
 
 ## Structure du projet
 
-Ce repo parent utilise des **submodules Git** pour regrouper les 3 services sans duplication de code :
+Ce projet contient 4 microservices :
 
 ```text
 DevOpsMicroServiceApp/
-├── frontend/          # Frontend + API Gateway (Next.js) [submodule]
-├── auth-service/      # Auth Service (FastAPI) - TP 03 [submodule]
-├── order-service/     # Order Service (NestJS) - TP 04 [submodule]
+├── frontend/          # Frontend + API Gateway (Next.js)
+├── auth-service/      # Auth Service (FastAPI) - TP 03
+├── product-service/   # Product Service (NestJS) - TP 07
+├── order-service/     # Order Service (NestJS) - TP 04
+├── k8s/              # Manifests Kubernetes
+├── docker-compose.yml # Orchestration Docker Compose
 └── docs/             # Documentation
 ```
 
@@ -84,7 +88,17 @@ cp .env.example .env
 # Éditer .env et configurer les variables nécessaires
 ```
 
-### 3. Order Service (NestJS)
+### 3. Product Service (NestJS)
+
+```bash
+cd product-service
+npm install
+cp .env.example .env
+# Éditer .env et configurer les variables nécessaires
+# IMPORTANT: JWT_SECRET doit être identique à auth-service
+```
+
+### 4. Order Service (NestJS)
 
 ```bash
 cd order-service
@@ -101,6 +115,7 @@ Créer un fichier `.env.local` (frontend) ou `.env` (services backend) dans chaq
 
 - `AUTH_SERVICE_URL=http://localhost:8000`
 - `ORDER_SERVICE_URL=http://localhost:3000`
+- `PRODUCT_SERVICE_URL=http://localhost:4000`
 - `NEXT_PUBLIC_API_URL=http://localhost:3001`
 
 ### Auth Service (.env)
@@ -112,6 +127,18 @@ Créer un fichier `.env.local` (frontend) ou `.env` (services backend) dans chaq
 - `HOST=0.0.0.0`
 - `PORT=8000`
 - `CORS_ORIGINS=http://localhost:3001,http://localhost:3000`
+
+### Product Service (.env)
+
+- `DATABASE_PATH=./data/products.db`
+- `JWT_SECRET=your-super-secret-key-change-in-production` (doit correspondre à SECRET_KEY de l'Auth Service)
+- `JWT_ALGORITHM=HS256`
+- `PORT=4000`
+- `HOST=0.0.0.0`
+- `NODE_ENV=development`
+- `CORS_ORIGINS=http://localhost:3001`
+- `AUTH_SERVICE_URL=http://localhost:8000`
+- `FAKESTORE_API_URL=https://fakestoreapi.com`
 
 ### Order Service (.env)
 
@@ -127,7 +154,7 @@ Créer un fichier `.env.local` (frontend) ou `.env` (services backend) dans chaq
 
 ### Lancer tous les services
 
-**Important** : Lancer les services dans l'ordre suivant (3 terminaux séparés) :
+**Important** : Lancer les services dans l'ordre suivant (4 terminaux séparés) :
 
 #### Terminal 1 - Auth Service (port 8000)
 
@@ -137,14 +164,21 @@ source venv/bin/activate  # Sur Windows: venv\Scripts\activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Terminal 2 - Order Service (port 3000)
+#### Terminal 2 - Product Service (port 4000)
+
+```bash
+cd product-service
+npm run start:dev
+```
+
+#### Terminal 3 - Order Service (port 3000)
 
 ```bash
 cd order-service
 npm run start:dev
 ```
 
-#### Terminal 3 - Frontend/API Gateway (port 3001)
+#### Terminal 4 - Frontend/API Gateway (port 3001)
 
 ```bash
 cd frontend
