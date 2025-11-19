@@ -13,27 +13,33 @@ Application microservices E-commerce avec API Gateway Next.js, Auth Service Fast
 
 ## Structure du projet
 
-Ce projet contient 4 microservices :
+Ce projet utilise une **architecture modulaire** avec 7 microservices (submodules GitHub) :
 
 ```text
 DevOpsMicroServiceApp/
-├── frontend/          # Frontend + API Gateway (Next.js)
-├── auth-service/      # Auth Service (FastAPI) - TP 03
-├── product-service/   # Product Service (NestJS) - TP 07
-├── order-service/     # Order Service (NestJS) - TP 04
-├── k8s/              # Manifests Kubernetes
-├── docker-compose.yml # Orchestration Docker Compose
-└── docs/             # Documentation
+├── frontend/              # [submodule] Frontend + API Gateway (Next.js)
+├── auth-service/          # [submodule] Auth Service (FastAPI)
+├── product-service/       # [submodule] Product Service (NestJS)
+├── order-service/         # [submodule] Order Service (NestJS)
+├── notification-service/  # [submodule] Notification Service (FastAPI)
+├── payment-service/       # [submodule] Payment Service (Go)
+├── tenant-service/        # [submodule] Tenant Service (NestJS)
+├── k8s/                   # Manifests Kubernetes
+├── docker-compose.yml     # Orchestration Docker Compose
+├── scripts/               # Scripts de migration et utilitaires
+└── docs/                  # Documentation
 ```
+
+> 📚 **Migration Gitea → GitHub** : Consultez [docs/MIGRATION-GITHUB.md](docs/MIGRATION-GITHUB.md)
 
 ### Cloner le repo avec les submodules
 
 ```bash
-# Cloner le repo parent
-git clone git@gitea.com:PowlAIR/DevOpsMicoServiceApp.git DevOpsMicroServiceApp
+# Cloner le repo parent (GitHub)
+git clone --recursive git@github.com:POWLAIR/DevOpsMicroServiceApp.git
 cd DevOpsMicroServiceApp
 
-# Initialiser et cloner les submodules
+# Si déjà cloné sans --recursive, initialiser les submodules
 git submodule update --init --recursive
 ```
 

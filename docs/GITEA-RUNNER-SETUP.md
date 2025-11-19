@@ -67,7 +67,7 @@ act_runner --version
 
 ## 🔑 Obtenir le Token d'Enregistrement
 
-### Pour chaque repository, vous devez obtenir un token d'enregistrement :
+### Pour chaque repository, vous devez obtenir un token d'enregistrement
 
 #### **Option A : Token au niveau du repository** (recommandé pour le TP)
 
@@ -172,6 +172,7 @@ act_runner register \
 ### Méthode 2 : Token par repository (4 runners distincts)
 
 **Pour Auth Service** :
+
 ```bash
 mkdir -p /home/paul/efrei-project/gitea-runner/auth
 cd /home/paul/efrei-project/gitea-runner/auth
@@ -184,6 +185,7 @@ act_runner register \
 ```
 
 **Pour Frontend** :
+
 ```bash
 mkdir -p /home/paul/efrei-project/gitea-runner/frontend
 cd /home/paul/efrei-project/gitea-runner/frontend
@@ -196,6 +198,7 @@ act_runner register \
 ```
 
 **Pour Order Service** :
+
 ```bash
 mkdir -p /home/paul/efrei-project/gitea-runner/order
 cd /home/paul/efrei-project/gitea-runner/order
@@ -208,6 +211,7 @@ act_runner register \
 ```
 
 **Pour DevOpsMicroServiceApp** :
+
 ```bash
 mkdir -p /home/paul/efrei-project/gitea-runner/parent
 cd /home/paul/efrei-project/gitea-runner/parent
@@ -235,30 +239,35 @@ act_runner daemon
 ### Option B : Runners multiples (4 runners, 4 terminaux)
 
 **Terminal 1 - Auth Runner** :
+
 ```bash
 cd /home/paul/efrei-project/gitea-runner/auth
 act_runner daemon
 ```
 
 **Terminal 2 - Frontend Runner** :
+
 ```bash
 cd /home/paul/efrei-project/gitea-runner/frontend
 act_runner daemon
 ```
 
 **Terminal 3 - Order Runner** :
+
 ```bash
 cd /home/paul/efrei-project/gitea-runner/order
 act_runner daemon
 ```
 
 **Terminal 4 - Parent Runner** :
+
 ```bash
 cd /home/paul/efrei-project/gitea-runner/parent
 act_runner daemon
 ```
 
-**Résultat attendu** : 
+**Résultat attendu** :
+
 ```
 INFO[0000] Starting runner daemon
 INFO[0000] Runner registered
@@ -325,6 +334,7 @@ sudo journalctl -u gitea-runner -f
 ### 1. Vérifier sur Gitea
 
 Aller sur :
+
 - `https://gitea.com/PowlAIR/Auth-DevOpsMicoServiceApp/settings/actions/runners`
 - Vous devriez voir votre runner avec un **statut vert (actif)**
 
@@ -353,6 +363,7 @@ git push origin main
 ```
 
 **Résultat attendu** :
+
 - Le workflow se déclenche automatiquement
 - Le runner exécute le job
 - L'image est buildée et pushée sur Docker Hub
@@ -368,6 +379,7 @@ sudo journalctl -u gitea-runner -f
 ```
 
 Vous devriez voir :
+
 ```
 INFO[0000] Listening for jobs...
 INFO[0010] Job received: Build and Push Auth Service Docker Image
@@ -381,7 +393,7 @@ INFO[0120] Job completed successfully
 
 Maintenant que le runner fonctionne, configurez les secrets dans **chaque repo Gitea** :
 
-### Pour chaque repository :
+### Pour chaque repository
 
 1. **Auth Service** : `https://gitea.com/PowlAIR/Auth-DevOpsMicoServiceApp/settings/secrets`
 2. **Frontend** : `https://gitea.com/PowlAIR/Frontend-DevOpsMicoServiceApp/settings/secrets`
@@ -496,9 +508,9 @@ sudo systemctl status gitea-runner
 ---
 
 **Prochaines étapes** :
+
 1. Installer act_runner
 2. Enregistrer le runner avec Gitea
 3. Démarrer le runner
 4. Configurer les secrets Docker Hub
 5. Tester le workflow !
-

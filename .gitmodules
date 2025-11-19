@@ -1,9 +1,21 @@
 [submodule "frontend"]
 	path = frontend
-	url = git@gitea.com:PowlAIR/Frontend-DevOpsMicoServiceApp.git
+	url = git@github.com:POWLAIR/devops-frontend.git
 [submodule "auth-service"]
 	path = auth-service
-	url = git@gitea.com:PowlAIR/Auth-DevOpsMicoServiceApp.git
+	url = git@github.com:POWLAIR/devops-auth-service.git
 [submodule "order-service"]
 	path = order-service
-	url = git@gitea.com:PowlAIR/OrderService-DevOpsMicoServiceApp.git
+	url = git@github.com:POWLAIR/devops-order-service.git
+[submodule "product-service"]
+	path = product-service
+	url = git@github.com:POWLAIR/devops-product-service.git
+[submodule "notification-service"]
+	path = notification-service
+	url = git@github.com:POWLAIR/devops-notification-service.git
+[submodule "payment-service"]
+	path = payment-service
+	url = git@github.com:POWLAIR/devops-payment-service.git
+[submodule "tenant-service"]
+	path = tenant-service
+	url = git@github.com:POWLAIR/devops-tenant-service.git
