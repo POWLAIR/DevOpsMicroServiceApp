@@ -2,6 +2,8 @@
 
 Application microservices avec API Gateway Next.js, Auth Service FastAPI et Order Service NestJS.
 
+> 🚀 **Nouveau sur le projet ?** Consultez le [Guide de Démarrage Rapide](docs/QUICKSTART.md) pour lancer l'application en 5 minutes !
+
 ## Architecture
 
 - **Frontend/API Gateway** (Next.js) - Point d'entrée unique
@@ -176,14 +178,269 @@ cd order-service
 npm run start:dev
 ```
 
+## Déploiement Kubernetes (TP 06)
+
+### Prérequis
+
+- Kubernetes cluster local (Minikube ou Orbstack)
+- `kubectl` installé et configuré
+- Docker pour construire les images
+- Ingress Controller activé (nginx-ingress pour Minikube)
+
+#### Installation Minikube
+
+```bash
+# Installer Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+# Démarrer Minikube
+minikube start
+
+# Activer l'Ingress
+minikube addons enable ingress
+
+# Configurer Docker pour utiliser le daemon Minikube
+eval $(minikube docker-env)
+```
+
+#### Installation Orbstack
+
+Orbstack est une alternative à Docker Desktop qui inclut Kubernetes. Activer Kubernetes dans les paramètres d'Orbstack.
+
+### Construction des images Docker
+
+```bash
+# Avec Minikube : configurer Docker pour utiliser le daemon Minikube
+eval $(minikube docker-env)
+
+# Construire les images
+(cd auth-service && docker build -t auth-service:latest .)
+(cd order-service && docker build -t order-service:latest .)
+(cd frontend && docker build -t frontend:latest .)
+```
+
+### Déploiement
+
+#### 1. Créer le namespace
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+```
+
+#### 2. Créer les ConfigMaps
+
+```bash
+kubectl apply -f k8s/configmaps/
+```
+
+#### 3. Créer le Secret JWT
+
+**Important** : Ne jamais commiter les secrets en clair. Créer le secret via `kubectl` :
+
+```bash
+kubectl create secret generic jwt-secret \
+  --from-literal=SECRET_KEY=your-super-secret-key-change-in-production \
+  --from-literal=JWT_SECRET=your-super-secret-key-change-in-production \
+  -n microservices
+```
+
+Ou utiliser le template `k8s/secrets/jwt-secret.yaml.example` (modifier les valeurs avant d'appliquer).
+
+#### 4. Créer les PersistentVolumeClaims
+
+```bash
+kubectl apply -f k8s/persistent-volumes/
+```
+
+#### 5. Créer les Deployments
+
+```bash
+kubectl apply -f k8s/deployments/
+```
+
+#### 6. Créer les Services
+
+```bash
+kubectl apply -f k8s/services/
+```
+
+#### 7. Créer l'Ingress
+
+```bash
+kubectl apply -f k8s/ingress/
+```
+
+#### Déploiement complet (tous les manifests)
+
+```bash
+# Appliquer tous les manifests (sauf le secret)
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmaps/
+kubectl apply -f k8s/persistent-volumes/
+kubectl apply -f k8s/deployments/
+kubectl apply -f k8s/services/
+kubectl apply -f k8s/ingress/
+
+# Créer le secret séparément
+kubectl create secret generic jwt-secret \
+  --from-literal=SECRET_KEY=your-secret-key \
+  --from-literal=JWT_SECRET=your-secret-key \
+  -n microservices
+```
+
+### Vérification
+
+#### Vérifier les pods
+
+```bash
+kubectl get pods -n microservices
+```
+
+Tous les pods doivent être en état `Running`.
+
+#### Vérifier les services
+
+```bash
+kubectl get services -n microservices
+```
+
+#### Vérifier les deployments
+
+```bash
+kubectl get deployments -n microservices
+```
+
+#### Vérifier les PVCs
+
+```bash
+kubectl get pvc -n microservices
+```
+
+Les PVCs doivent être en état `Bound`.
+
+#### Voir les logs
+
+```bash
+# Logs d'un pod spécifique
+kubectl logs -f <pod-name> -n microservices
+
+# Logs de tous les pods d'un deployment
+kubectl logs -f deployment/auth-deployment -n microservices
+```
+
+#### Décrire un pod (debugging)
+
+```bash
+kubectl describe pod <pod-name> -n microservices
+```
+
+### Accès aux services
+
+#### Via Ingress (recommandé)
+
+```bash
+# Obtenir l'IP de l'Ingress
+kubectl get ingress -n microservices
+
+# Ajouter l'entrée dans /etc/hosts (ou équivalent)
+# <INGRESS_IP> microservices.local
+
+# Accéder à l'application
+# http://microservices.local
+```
+
+#### Via Port Forward (développement)
+
+```bash
+# Frontend
+kubectl port-forward svc/frontend-service 3001:3001 -n microservices
+
+# Auth Service
+kubectl port-forward svc/auth-service 8000:8000 -n microservices
+
+# Order Service
+kubectl port-forward svc/order-service 3000:3000 -n microservices
+```
+
+#### Via Minikube Service
+
+```bash
+# Obtenir l'URL du service frontend
+minikube service frontend-service -n microservices --url
+
+# Ou utiliser le tunnel Minikube
+minikube tunnel
+```
+
+### Commandes utiles
+
+#### Mettre à jour une image
+
+```bash
+kubectl set image deployment/auth-deployment \
+  auth-service=auth-service:v2 \
+  -n microservices
+```
+
+#### Vérifier le statut d'un rollout
+
+```bash
+kubectl rollout status deployment/auth-deployment -n microservices
+```
+
+#### Rollback
+
+```bash
+kubectl rollout undo deployment/auth-deployment -n microservices
+```
+
+#### Exécuter une commande dans un pod
+
+```bash
+kubectl exec -it <pod-name> -n microservices -- /bin/sh
+```
+
+#### Voir les événements
+
+```bash
+kubectl get events -n microservices --sort-by='.lastTimestamp'
+```
+
+### Suppression
+
+#### Supprimer tous les ressources
+
+```bash
+kubectl delete namespace microservices
+```
+
+#### Supprimer individuellement
+
+```bash
+kubectl delete -f k8s/
+```
+
+### Notes importantes
+
+1. **SQLite et ReadWriteOnce** : Les services auth et order utilisent `replicas: 1` car SQLite ne supporte qu'un seul writer à la fois avec ReadWriteOnce.
+
+2. **Service Discovery** : Les services communiquent via DNS Kubernetes (`http://auth-service:8000`, `http://order-service:3000`).
+
+3. **Secrets** : Ne jamais commiter les secrets en clair. Utiliser `kubectl create secret` ou un gestionnaire de secrets en production.
+
+4. **Images Docker** : Les images doivent être construites et disponibles dans le registre utilisé par Kubernetes (local pour Minikube/Orbstack).
+
+5. **Storage Class** : Pour Minikube, utiliser `storageClassName: standard` ou `hostpath` selon la configuration.
+
 ## TPs
 
 - **TP 01** : Architecture MicroServices et Philosophie DevOps
 - **TP 02** : Frontend + API Gateway (Next.js) ✅
 - **TP 03** : Auth Service (Python FastAPI + SQLite) ✅
 - **TP 04** : Order Service (NestJS API + SQLite) ✅
-- **TP 05** : Conteneurisation (Docker + Docker Compose)
-- **TP 06** : Orchestration (Kubernetes)
+- **TP 05** : Conteneurisation (Docker + Docker Compose) ✅
+- **TP 06** : Orchestration (Kubernetes) ✅
 
 ## Contribution
 
