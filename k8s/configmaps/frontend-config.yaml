@@ -7,5 +7,6 @@ data:
   PORT: "3001"
   AUTH_SERVICE_URL: "http://auth-service:8000"
   ORDER_SERVICE_URL: "http://order-service:3000"
+  PRODUCT_SERVICE_URL: "http://product-service:4000"
   NEXT_PUBLIC_API_URL: "http://localhost:3001"
 
