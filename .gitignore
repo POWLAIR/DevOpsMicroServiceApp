@@ -56,4 +56,6 @@ coverage/
 docs/tp/
 .cursor/
 transform/
-scripts/
+
+# Binaires Minikube (trop volumineux pour GitHub)
+minikube-linux-amd64
