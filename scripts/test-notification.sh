@@ -82,3 +82,5 @@ echo "🔍 Pour voir les logs du worker Celery :"
 echo "  docker-compose logs -f notification-worker"
 echo ""
 
+
+
