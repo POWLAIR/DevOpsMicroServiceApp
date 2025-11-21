@@ -18,12 +18,11 @@ Ce dossier contient tous les workflows GitHub Actions pour le CI/CD du projet.
 | `payment-service-push.yml` | Build et push Payment Service (Go) | Push sur `payment-service/**` |
 | `tenant-service-push.yml` | Build et push Tenant Service (NestJS) | Push sur `tenant-service/**` |
 
-### Workflows Globaux (2)
+### Workflows Globaux (1)
 
 | Workflow | Description | Déclencheur |
 |----------|-------------|-------------|
 | `build-all-services.yml` | Build TOUS les services en parallèle | Manuel / Release |
-| `update-submodules.yml` | Synchroniser les submodules | Manuel / Auto (après push service) |
 
 ---
 
@@ -53,14 +52,6 @@ Via GitHub CLI :
 
 ```bash
 gh workflow run build-all-services.yml -f push_to_dockerhub=true
-```
-
-### Synchroniser les submodules
-
-Via GitHub CLI :
-
-```bash
-gh workflow run update-submodules.yml
 ```
 
 ---

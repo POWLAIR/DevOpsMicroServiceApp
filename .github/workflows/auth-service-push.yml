@@ -51,12 +51,3 @@ jobs:
 
       - name: Image digest
         run: echo "✅ Auth Service image pushed successfully!"
-
-      - name: Trigger parent repo submodule update
-        if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PAT_WORKFLOW_TRIGGER }}
-          repository: POWLAIR/DevOpsMicroServiceApp
-          event-type: submodule-update
-          client-payload: '{"service": "auth-service", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
