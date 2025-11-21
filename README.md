@@ -10,6 +10,8 @@ Application microservices E-commerce avec API Gateway Next.js, Auth Service Fast
 - **Auth Service** (Python FastAPI + SQLite) - Authentification et autorisation
 - **Product Service** (NestJS + SQLite) - Catalogue produits, favoris, avis (TP 07)
 - **Order Service** (NestJS + SQLite) - Gestion des commandes
+- **Payment Service** (Go + Fiber + PostgreSQL) - Paiements Stripe avec webhooks ✨ **NOUVEAU**
+- **Notification Service** (Python FastAPI + Celery + Redis) - Emails (SendGrid) et SMS (Twilio) ✨ **NOUVEAU**
 
 ## Structure du projet
 
@@ -27,7 +29,9 @@ DevOpsMicroServiceApp/
 ├── k8s/                   # Manifests Kubernetes
 ├── docker-compose.yml     # Orchestration Docker Compose
 ├── scripts/               # Scripts de migration et utilitaires
-└── docs/                  # Documentation
+└── docs/                  # Documentation$$
+
+$$
 ```
 
 > 📚 **Migration Gitea → GitHub** : Consultez [docs/MIGRATION-GITHUB.md](docs/MIGRATION-GITHUB.md)
@@ -487,6 +491,7 @@ Le projet utilise GitHub Actions pour l'intégration et le déploiement continus
 ### Documentation
 
 Voir [docs/GITHUB-ACTIONS-CICD.md](docs/GITHUB-ACTIONS-CICD.md) pour :
+
 - Configuration des secrets
 - Utilisation des workflows
 - Personnalisation et optimisation
@@ -518,6 +523,7 @@ gh workflow run build-all-services.yml -f push_to_dockerhub=true
 Format de commit : `PREFIX-[service] : message`
 
 Exemples :
+
 - `FIX-[frontend] : add authentication context`
 - `REFACTOR-[auth-service] : improve JWT validation`
 - `DOCS-[repo-parent] : update README`

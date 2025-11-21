@@ -1,4 +1,44 @@
 services:
+  # PostgreSQL - Base de données principale multi-tenant
+  postgres:
+    image: postgres:16-alpine
+    container_name: saas_postgres
+    environment:
+      POSTGRES_DB: saas_platform
+      POSTGRES_USER: saas_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password_change_in_prod}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saas_admin -d saas_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Redis - Cache et sessions
+  redis:
+    image: redis:7-alpine
+    container_name: saas_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
   auth-service:
     build:
       context: ./auth-service
@@ -6,11 +46,10 @@ services:
     container_name: auth-service
     ports:
       - "8000:8000"
-    volumes:
-      - auth-db:/app/data
     environment:
-      - DATABASE_URL=sqlite:///./data/auth.db
-      - SECRET_KEY=${JWT_SECRET}
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${JWT_SECRET:-dev-secret-key-change-in-production}
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - HOST=0.0.0.0
@@ -18,6 +57,11 @@ services:
       - CORS_ORIGINS=http://localhost:3001
     networks:
       - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -33,11 +77,14 @@ services:
     container_name: order-service
     ports:
       - "3000:3000"
-    volumes:
-      - order-db:/app/data
     environment:
-      - DATABASE_PATH=./data/orders.db
-      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=saas_admin
+      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_NAME=saas_platform
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
       - JWT_ALGORITHM=HS256
       - PORT=3000
       - HOST=0.0.0.0
@@ -47,6 +94,10 @@ services:
     networks:
       - microservices-network
     depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
       auth-service:
         condition: service_healthy
     healthcheck:
@@ -64,11 +115,14 @@ services:
     container_name: product-service
     ports:
       - "4000:4000"
-    volumes:
-      - product-db:/app/data
     environment:
-      - DATABASE_PATH=./data/products.db
-      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=saas_admin
+      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_NAME=saas_platform
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
       - JWT_ALGORITHM=HS256
       - PORT=4000
       - HOST=0.0.0.0
@@ -79,6 +133,10 @@ services:
     networks:
       - microservices-network
     depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
       auth-service:
         condition: service_healthy
     healthcheck:
@@ -87,6 +145,96 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=saas_admin
+      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_NAME=saas_platform
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_example}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_example}
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - CORS_ORIGINS=http://localhost:3001
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "6000:6000"
+    environment:
+      - PORT=6000
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@saas-platform.com}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER:-+33600000000}
+      - CORS_ORIGINS=http://localhost:3001
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  notification-worker:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-worker
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@saas-platform.com}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER:-+33600000000}
+    networks:
+      - microservices-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -103,6 +251,8 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:8000
       - ORDER_SERVICE_URL=http://order-service:3000
       - PRODUCT_SERVICE_URL=http://product-service:4000
+      - PAYMENT_SERVICE_URL=http://payment-service:5000
+      - NOTIFICATION_SERVICE_URL=http://notification-service:6000
       - NEXT_PUBLIC_API_URL=http://localhost:3001
     networks:
       - microservices-network
@@ -113,14 +263,16 @@ services:
         condition: service_healthy
       product-service:
         condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  auth-db:
+  postgres_data:
     driver: local
-  order-db:
-    driver: local
-  product-db:
+  redis_data:
     driver: local
 
 networks:
