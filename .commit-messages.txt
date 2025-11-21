@@ -1,0 +1,104 @@
+# Commit Messages Templates pour les Workflows
+
+## Pour chaque service individuellement
+
+### product-service
+```
+FIX-[product-service] : add GitHub Actions workflow for Docker push
+
+- Ajout du workflow docker-push.yml
+- Build automatique sur push vers main
+- Push vers Docker Hub avec tags latest et SHA
+- Cache Docker pour optimiser les builds
+```
+
+### payment-service
+```
+FIX-[payment-service] : add GitHub Actions workflow for Docker push
+
+- Ajout du workflow docker-push.yml
+- Build automatique sur push vers main
+- Push vers Docker Hub avec tags latest et SHA
+- Cache Docker pour optimiser les builds
+```
+
+### notification-service
+```
+FIX-[notification-service] : add GitHub Actions workflow for Docker push
+
+- Ajout du workflow docker-push.yml
+- Build automatique sur push vers main
+- Push vers Docker Hub avec tags latest et SHA
+- Cache Docker pour optimiser les builds
+```
+
+### tenant-service
+```
+FIX-[tenant-service] : add GitHub Actions workflow for Docker push
+
+- Ajout du workflow docker-push.yml
+- Build automatique sur push vers main
+- Push vers Docker Hub avec tags latest et SHA
+- Cache Docker pour optimiser les builds
+```
+
+---
+
+## Pour le repo parent (DevOpsMicroServiceApp)
+
+```
+DOCS-[repo-parent] : add workflows audit and documentation
+
+- Création du rapport d'audit complet (docs/WORKFLOW-AUDIT.md)
+- Ajout du script de push automatisé (scripts/push-workflows.sh)
+- Documentation des modifications (WORKFLOW-FIXES.md)
+- Templates de commit messages (.commit-messages.txt)
+
+Problème résolu :
+4 services sur 7 n'avaient pas de workflows GitHub Actions
+pour automatiser le push des images Docker.
+
+Solution :
+Création de workflows docker-push.yml pour product-service,
+payment-service, notification-service et tenant-service.
+```
+
+---
+
+## Commands rapides
+
+### Push service par service
+```bash
+# Product Service
+cd product-service
+git add .github/workflows/docker-push.yml
+git commit -m "FIX-[product-service] : add GitHub Actions workflow for Docker push"
+git push origin main
+
+# Payment Service
+cd ../payment-service
+git add .github/workflows/docker-push.yml
+git commit -m "FIX-[payment-service] : add GitHub Actions workflow for Docker push"
+git push origin main
+
+# Notification Service
+cd ../notification-service
+git add .github/workflows/docker-push.yml
+git commit -m "FIX-[notification-service] : add GitHub Actions workflow for Docker push"
+git push origin main
+
+# Tenant Service
+cd ../tenant-service
+git add .github/workflows/docker-push.yml
+git commit -m "FIX-[tenant-service] : add GitHub Actions workflow for Docker push"
+git push origin main
+```
+
+### Push documentation dans le repo parent
+```bash
+cd /home/paul/efrei-project/DevOpsMicroServiceApp
+git add docs/WORKFLOW-AUDIT.md WORKFLOW-FIXES.md scripts/push-workflows.sh .commit-messages.txt
+git commit -m "DOCS-[repo-parent] : add workflows audit and documentation"
+git push origin main
+```
+
