@@ -5,29 +5,29 @@ on:
     branches:
       - main
     paths:
-      - 'auth-service/**'
-      - '.github/workflows/auth-service-push.yml'
+      - "auth-service/**"
+      - ".github/workflows/auth-service-push.yml"
   workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -37,7 +37,7 @@ jobs:
             type=raw,value=latest
             type=sha,prefix={{branch}}-
             type=ref,event=branch
-      
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -48,7 +48,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devops-auth-service:latest
           cache-to: type=inline
-      
+
       - name: Image digest
         run: echo "✅ Auth Service image pushed successfully!"
 
+      - name: Trigger parent repo submodule update
+        if: success()
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_WORKFLOW_TRIGGER }}
+          repository: POWLAIR/DevOpsMicroServiceApp
+          event-type: submodule-update
+          client-payload: '{"service": "auth-service", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

@@ -23,7 +23,7 @@ Ce dossier contient tous les workflows GitHub Actions pour le CI/CD du projet.
 | Workflow | Description | Déclencheur |
 |----------|-------------|-------------|
 | `build-all-services.yml` | Build TOUS les services en parallèle | Manuel / Release |
-| `update-submodules.yml` | Synchroniser les submodules | Manuel / Quotidien (2h) |
+| `update-submodules.yml` | Synchroniser les submodules | Manuel / Auto (après push service) |
 
 ---
 

@@ -30,10 +30,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/product-service
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/devops-product-service
           tags: |
             type=raw,value=latest
             type=sha,prefix={{branch}}-
+            type=ref,event=branch
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -43,9 +44,18 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/product-service:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devops-product-service:latest
           cache-to: type=inline
       
       - name: Image digest
-        run: echo "Image pushed with digest ${{ steps.docker_build.outputs.digest }}"
+        run: echo "✅ Product Service image pushed successfully!"
+      
+      - name: Trigger parent repo submodule update
+        if: success()
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_WORKFLOW_TRIGGER }}
+          repository: POWLAIR/DevOpsMicroServiceApp
+          event-type: submodule-update
+          client-payload: '{"service": "product-service", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
 
