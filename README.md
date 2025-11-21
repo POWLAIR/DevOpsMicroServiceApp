@@ -473,6 +473,36 @@ kubectl delete -f k8s/
 
 5. **Storage Class** : Pour Minikube, utiliser `storageClassName: standard` ou `hostpath` selon la configuration.
 
+## CI/CD - GitHub Actions
+
+Le projet utilise GitHub Actions pour l'intégration et le déploiement continus.
+
+### Workflows automatiques
+
+- **9 workflows** configurés pour tous les services
+- Build automatique sur push vers `main`
+- Push vers Docker Hub
+- Synchronisation automatique des submodules
+
+### Documentation
+
+Voir [docs/GITHUB-ACTIONS-CICD.md](docs/GITHUB-ACTIONS-CICD.md) pour :
+- Configuration des secrets
+- Utilisation des workflows
+- Personnalisation et optimisation
+
+### Déclencher un build
+
+```bash
+# Via GitHub CLI
+gh workflow run build-all-services.yml -f push_to_dockerhub=true
+
+# Ou manuellement sur GitHub
+# Actions → Build All Services → Run workflow
+```
+
+---
+
 ## TPs
 
 - **TP 01** : Architecture MicroServices et Philosophie DevOps
@@ -481,9 +511,15 @@ kubectl delete -f k8s/
 - **TP 04** : Order Service (NestJS API + SQLite) ✅
 - **TP 05** : Conteneurisation (Docker + Docker Compose) ✅
 - **TP 06** : Orchestration (Kubernetes) ✅
+- **TP 07** : CI/CD (GitHub Actions) ✅
 
 ## Contribution
 
-Format de commit : `DEVOP-XXX : [service] message`
+Format de commit : `PREFIX-[service] : message`
 
-Exemple : `DEVOP-002 : [frontend] add authentication context`
+Exemples :
+- `FIX-[frontend] : add authentication context`
+- `REFACTOR-[auth-service] : improve JWT validation`
+- `DOCS-[repo-parent] : update README`
+
+Préfixes : `FIX`, `BUGFIX`, `REFACTOR`, `TESTS`, `DOCS`

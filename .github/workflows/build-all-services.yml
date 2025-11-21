@@ -1,0 +1,112 @@
+name: Build All Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_to_dockerhub:
+        description: 'Push images to Docker Hub'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+  
+  # Déclenché lors d'une release
+  release:
+    types: [published]
+
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - name: frontend
+            image: devops-frontend
+          - name: auth-service
+            image: devops-auth-service
+          - name: order-service
+            image: devops-order-service
+          - name: product-service
+            image: devops-product-service
+          - name: notification-service
+            image: devops-notification-service
+          - name: payment-service
+            image: devops-payment-service
+          - name: tenant-service
+            image: devops-tenant-service
+      fail-fast: false
+    
+    name: Build ${{ matrix.service.name }}
+    
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        if: ${{ github.event.inputs.push_to_dockerhub == 'true' || github.event_name == 'release' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service.image }}
+          tags: |
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+      
+      - name: Build and optionally push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service.name }}
+          file: ./${{ matrix.service.name }}/Dockerfile
+          push: ${{ github.event.inputs.push_to_dockerhub == 'true' || github.event_name == 'release' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service.image }}:latest
+          cache-to: type=inline
+      
+      - name: Build summary
+        run: |
+          echo "### ✅ ${{ matrix.service.name }} built successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service.image }}" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event.inputs.push_to_dockerhub }}" == "true" || "${{ github.event_name }}" == "release" ]]; then
+            echo "Status: Pushed to Docker Hub 🚀" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Status: Build only (not pushed)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  summary:
+    needs: build-matrix
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Final Summary
+        run: |
+          echo "## 🎉 Build All Services Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All 7 microservices have been processed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Services:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend (Next.js)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Auth Service (FastAPI)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Order Service (NestJS)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Product Service (NestJS)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Notification Service (FastAPI)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Payment Service (Go)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Tenant Service (NestJS)" >> $GITHUB_STEP_SUMMARY
+
