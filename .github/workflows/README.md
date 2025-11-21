@@ -1,78 +1,63 @@
 # 🚀 GitHub Actions Workflows
 
-Ce dossier contient tous les workflows GitHub Actions pour le CI/CD du projet.
+Les workflows CI/CD de ce projet sont distribués dans chaque sous-module de service.
 
 ---
 
-## 📋 Liste des Workflows
+## 📋 Architecture CI/CD
 
-### Workflows par Service (7)
+Chaque service (sous-module) possède son propre workflow :
 
-| Workflow | Description | Déclencheur |
-|----------|-------------|-------------|
-| `frontend-push.yml` | Build et push Frontend (Next.js) | Push sur `frontend/**` |
-| `auth-service-push.yml` | Build et push Auth Service (FastAPI) | Push sur `auth-service/**` |
-| `order-service-push.yml` | Build et push Order Service (NestJS) | Push sur `order-service/**` |
-| `product-service-push.yml` | Build et push Product Service (NestJS) | Push sur `product-service/**` |
-| `notification-service-push.yml` | Build et push Notification Service (FastAPI) | Push sur `notification-service/**` |
-| `payment-service-push.yml` | Build et push Payment Service (Go) | Push sur `payment-service/**` |
-| `tenant-service-push.yml` | Build et push Tenant Service (NestJS) | Push sur `tenant-service/**` |
+| Service | Technologie | Action CI/CD |
+|---------|-------------|--------------|
+| Frontend | Next.js | Build et push image Docker |
+| Auth Service | FastAPI | Build et push image Docker |
+| Order Service | NestJS | Build et push image Docker |
+| Product Service | NestJS | Build et push image Docker |
+| Notification Service | FastAPI | Build et push image Docker |
+| Payment Service | Go | Build et push image Docker |
+| Tenant Service | NestJS | Build et push image Docker |
 
-### Workflows Globaux (1)
+## 🎯 Utilisation
 
-| Workflow | Description | Déclencheur |
-|----------|-------------|-------------|
-| `build-all-services.yml` | Build TOUS les services en parallèle | Manuel / Release |
+Chaque service (sous-module) possède son propre workflow de CI/CD dans **son propre repository**.
 
----
+**Fonctionnement :**
+1. Aller dans le repo du service (ex: `devops-auth-service`)
+2. Modifier du code et push sur `main`
+3. Le workflow GitHub Actions se déclenche automatiquement
+4. L'image Docker est buildée et pushée sur Docker Hub
 
-## 🎯 Utilisation Rapide
-
-### Déclencher un build individuel
-
-Chaque workflow s'exécute automatiquement lors d'un push sur son service :
+**Exemple :**
 
 ```bash
-cd frontend
+# Dans le repo du service (pas le repo parent)
+cd devops-auth-service
 echo "# Change" >> README.md
-git add . && git commit -m "FIX-[frontend] : test CI"
-git push github main
-```
-
-### Déclencher tous les builds
-
-Via GitHub UI :
-
-1. Aller sur [Actions](https://github.com/POWLAIR/DevOpsMicroServiceApp/actions)
-2. Sélectionner **Build All Services**
-3. Cliquer sur **Run workflow**
-4. Choisir `push_to_dockerhub: true`
-
-Via GitHub CLI :
-
-```bash
-gh workflow run build-all-services.yml -f push_to_dockerhub=true
+git add . && git commit -m "FIX-[auth-service] : update feature"
+git push origin main
 ```
 
 ---
 
 ## 🔑 Secrets Requis
 
-Configurer dans [Settings > Secrets](https://github.com/POWLAIR/DevOpsMicroServiceApp/settings/secrets/actions) :
+À configurer dans **chaque repository de service** :
 
 | Nom | Description |
 |-----|-------------|
 | `DOCKERHUB_USERNAME` | Nom d'utilisateur Docker Hub |
 | `DOCKERHUB_TOKEN` | Token d'accès Docker Hub |
-| `NEXT_PUBLIC_API_URL` | URL API pour Frontend (optionnel) |
+| `NEXT_PUBLIC_API_URL` | URL API pour Frontend (optionnel, frontend uniquement) |
 
 ---
 
-## 📚 Documentation Complète
+## 📝 Note
 
-Voir [docs/GITHUB-ACTIONS-CICD.md](../../docs/GITHUB-ACTIONS-CICD.md) pour la documentation complète.
+Ce repo parent (`DevOpsMicroServiceApp`) est un conteneur de sous-modules.  
+Les workflows CI/CD sont situés dans chaque sous-module indépendant.
 
 ---
 
-**CI/CD configuré et prêt à l'emploi !** 🚀
+**CI/CD décentralisé par service !** 🚀
 
