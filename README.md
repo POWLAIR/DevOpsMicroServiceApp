@@ -1,17 +1,66 @@
 # DevOps MicroService App
 
-Application microservices E-commerce avec API Gateway Next.js, Auth Service FastAPI, Product Service et Order Service NestJS.
+Application microservices E-commerce SaaS multi-tenant avec architecture distribuée, conteneurisation Docker, orchestration Kubernetes et CI/CD automatisé avec GitHub Actions.
 
 > 🚀 **Nouveau sur le projet ?** Consultez le [Guide de Démarrage Rapide](docs/QUICKSTART.md) pour lancer l'application en 5 minutes !
 
+## 🎯 Vue d'ensemble du projet
+
+Ce projet implémente une **plateforme e-commerce SaaS multi-tenant** complète avec :
+
+- **7 microservices** indépendants et scalables
+- **Architecture multi-tenant** avec isolation des données par tenant
+- **API Gateway** centralisé pour le routage des requêtes
+- **Conteneurisation** Docker pour tous les services
+- **Orchestration** Kubernetes pour le déploiement en production
+- **CI/CD automatisé** avec GitHub Actions
+- **Bases de données** adaptées (PostgreSQL pour transactions critiques, SQLite pour services légers)
+
 ## Architecture
 
-- **Frontend/API Gateway** (Next.js) - Point d'entrée unique avec catalogue produits
-- **Auth Service** (Python FastAPI + SQLite) - Authentification et autorisation
-- **Product Service** (NestJS + SQLite) - Catalogue produits, favoris, avis (TP 07)
-- **Order Service** (NestJS + SQLite) - Gestion des commandes
-- **Payment Service** (Go + Fiber + PostgreSQL) - Paiements Stripe avec webhooks ✨ **NOUVEAU**
-- **Notification Service** (Python FastAPI + Celery + Redis) - Emails (SendGrid) et SMS (Twilio) ✨ **NOUVEAU**
+### Services
+
+- **Frontend/API Gateway** (Next.js) - Point d'entrée unique avec catalogue produits, interface utilisateur et routage vers les microservices
+- **Auth Service** (Python FastAPI + PostgreSQL) - Authentification multi-tenant, autorisation RBAC, gestion des tokens JWT
+- **Product Service** (NestJS + PostgreSQL) - Catalogue produits, favoris, avis (TP 07)
+- **Order Service** (NestJS + PostgreSQL) - Gestion des commandes avec suivi des paiements
+- **Payment Service** (Go + Fiber + PostgreSQL) - Paiements Stripe avec webhooks (PostgreSQL choisi pour garantir l'intégrité transactionnelle ACID des paiements) ✨
+- **Notification Service** (Python FastAPI + Celery + Redis) - Emails (SendGrid) et SMS (Twilio) avec queue asynchrone ✨
+- **Tenant Service** (NestJS + PostgreSQL) - Gestion des tenants (merchants), onboarding, plans tarifaires
+
+### Architecture globale
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (Next.js)                       │
+│                  Port: 3001 (API Gateway)                   │
+└──────┬──────────┬──────────┬──────────┬──────────┬─────────┘
+       │          │          │          │          │
+   ┌───▼───┐  ┌───▼───┐  ┌───▼───┐  ┌───▼───┐  ┌───▼───┐
+   │ Auth  │  │Product│  │ Order │  │Payment│  │Tenant │
+   │Service│  │Service│  │Service│  │Service│  │Service│
+   │ :8000 │  │ :4000 │  │ :3000 │  │ :5000 │  │ :7000 │
+   └───┬───┘  └───┬───┘  └───┬───┘  └───┬───┘  └───┬───┘
+       │          │          │          │          │
+       └──────────┴──────────┴──────────┴──────────┘
+                    │
+            ┌───────▼────────┐
+            │  Notification  │
+            │    Service     │
+            │     :6000      │
+            └────────────────┘
+
+Infrastructure:
+- PostgreSQL (Auth, Order, Payment, Tenant, Product)
+- Redis (Cache Auth, Queue Notifications)
+```
+
+### Communication inter-services
+
+- **Frontend → Services** : Via API Gateway (Next.js API Routes)
+- **Services → Services** : Communication directe HTTP/REST (service-to-service)
+- **Authentification** : Validation JWT décentralisée (pas de point de défaillance unique)
+- **Multi-tenant** : Isolation via header `X-Tenant-ID` dans toutes les requêtes
 
 ## Structure du projet
 
@@ -29,9 +78,7 @@ DevOpsMicroServiceApp/
 ├── k8s/                   # Manifests Kubernetes
 ├── docker-compose.yml     # Orchestration Docker Compose
 ├── scripts/               # Scripts de migration et utilitaires
-└── docs/                  # Documentation$$
-
-$$
+└── docs/                  # Documentation
 ```
 
 > 📚 **Migration Gitea → GitHub** : Consultez [docs/MIGRATION-GITHUB.md](docs/MIGRATION-GITHUB.md)
@@ -160,11 +207,22 @@ Créer un fichier `.env.local` (frontend) ou `.env` (services backend) dans chaq
 - `CORS_ORIGINS=http://localhost:3001,http://localhost:3000`
 - `AUTH_SERVICE_URL=http://localhost:8000`
 
+### Tenant Service (.env)
+
+- `DATABASE_URL=postgresql://saas_admin:dev_password_change_in_prod@postgres:5432/saas_platform`
+- `JWT_SECRET=your-super-secret-key-change-in-production`
+- `JWT_ALGORITHM=HS256`
+- `PORT=7000`
+- `HOST=0.0.0.0`
+- `CORS_ORIGINS=http://localhost:3001`
+- `STRIPE_SECRET_KEY=sk_test_example`
+- `STRIPE_WEBHOOK_SECRET=whsec_example`
+
 ## Développement
 
 ### Lancer tous les services
 
-**Important** : Lancer les services dans l'ordre suivant (4 terminaux séparés) :
+**Important** : Lancer les services dans l'ordre suivant (5 terminaux séparés) :
 
 #### Terminal 1 - Auth Service (port 8000)
 
@@ -188,7 +246,14 @@ cd order-service
 npm run start:dev
 ```
 
-#### Terminal 4 - Frontend/API Gateway (port 3001)
+#### Terminal 4 - Tenant Service (port 7000)
+
+```bash
+cd tenant-service
+npm run start:dev
+```
+
+#### Terminal 5 - Frontend/API Gateway (port 3001)
 
 ```bash
 cd frontend
@@ -204,6 +269,7 @@ Une fois tous les services démarrés :
   - Documentation Swagger : <http://localhost:8000/docs>
   - Documentation ReDoc : <http://localhost:8000/redoc>
 - **Order Service** : <http://localhost:3000>
+- **Tenant Service** : <http://localhost:7000>
 
 ### Lancer un service individuel
 
@@ -477,26 +543,76 @@ kubectl delete -f k8s/
 
 5. **Storage Class** : Pour Minikube, utiliser `storageClassName: standard` ou `hostpath` selon la configuration.
 
-## CI/CD - GitHub Actions
+## CI/CD - GitHub Actions (TP 07)
 
-Le projet utilise GitHub Actions pour l'intégration et le déploiement continus.
+Le projet utilise **GitHub Actions** pour l'intégration et le déploiement continus (CI/CD).
 
-### Workflows automatiques
+### 🎯 Objectifs du CI/CD
 
-- **9 workflows** configurés pour tous les services
-- Build automatique sur push vers `main`
-- Push vers Docker Hub
-- Synchronisation automatique des submodules
+- **Build automatique** : Construction des images Docker à chaque push
+- **Tests automatisés** : Exécution des tests unitaires et d'intégration
+- **Push vers Docker Hub** : Publication automatique des images
+- **Synchronisation des submodules** : Mise à jour automatique des dépendances
+- **Déploiement** : Déploiement automatique en staging/production (optionnel)
 
-### Documentation
+### Workflows configurés
 
-Voir [docs/GITHUB-ACTIONS-CICD.md](docs/GITHUB-ACTIONS-CICD.md) pour :
+Le projet contient **9 workflows GitHub Actions** :
 
-- Configuration des secrets
-- Utilisation des workflows
-- Personnalisation et optimisation
+1. **build-all-services.yml** - Build et push de tous les services
+2. **build-auth-service.yml** - Build spécifique Auth Service
+3. **build-frontend.yml** - Build spécifique Frontend
+4. **build-order-service.yml** - Build spécifique Order Service
+5. **build-product-service.yml** - Build spécifique Product Service
+6. **build-payment-service.yml** - Build spécifique Payment Service
+7. **build-notification-service.yml** - Build spécifique Notification Service
+8. **build-tenant-service.yml** - Build spécifique Tenant Service
+9. **sync-submodules.yml** - Synchronisation automatique des submodules
 
-### Déclencher un build
+### Fonctionnalités
+
+#### Build automatique
+
+- **Déclenchement** : Sur push vers `main` ou `develop`
+- **Actions** :
+  - Checkout du code
+  - Build de l'image Docker
+  - Tag de l'image (latest + commit SHA)
+  - Push vers Docker Hub
+
+#### Tests automatisés
+
+- Exécution des tests unitaires (si disponibles)
+- Validation du code (linting)
+- Vérification des dépendances
+
+#### Push vers Docker Hub
+
+- Images taguées : `powlker/<service-name>:latest`
+- Images versionnées : `powlker/<service-name>:<commit-sha>`
+- Authentification via secrets GitHub
+
+### Configuration
+
+#### Secrets GitHub requis
+
+Configurer les secrets suivants dans GitHub (Settings → Secrets and variables → Actions) :
+
+```
+DOCKERHUB_USERNAME=powlker
+DOCKERHUB_TOKEN=<token-docker-hub>
+```
+
+#### Variables d'environnement
+
+Les workflows utilisent des variables d'environnement pour :
+- Nom du registre Docker (Docker Hub)
+- Tags des images
+- Branches à surveiller
+
+### Utilisation
+
+#### Déclencher un build manuel
 
 ```bash
 # Via GitHub CLI
@@ -506,17 +622,117 @@ gh workflow run build-all-services.yml -f push_to_dockerhub=true
 # Actions → Build All Services → Run workflow
 ```
 
+#### Déclencher un build pour un service spécifique
+
+```bash
+gh workflow run build-auth-service.yml
+```
+
+#### Voir les logs
+
+1. Aller sur GitHub → Actions
+2. Sélectionner le workflow
+3. Voir les logs du job
+
+### Pipeline CI/CD complet
+
+```
+┌─────────────┐
+│ Push to Git │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│ GitHub Actions   │
+│ (Trigger)       │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Checkout Code   │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Run Tests       │
+│ (if available)  │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Build Docker    │
+│ Image           │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Push to Docker  │
+│ Hub             │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Deploy (opt)    │
+│ Kubernetes      │
+└─────────────────┘
+```
+
+### Documentation détaillée
+
+Pour plus d'informations, consultez :
+
+- Configuration des secrets : Voir la section "Secrets GitHub" ci-dessus
+- Personnalisation des workflows : Modifier les fichiers `.github/workflows/*.yml`
+- Optimisation : Utiliser le cache Docker pour accélérer les builds
+
+### Bonnes pratiques
+
+- ✅ **Tags sémantiques** : Utiliser des tags versionnés (v1.0.0, v1.1.0)
+- ✅ **Tests avant build** : Exécuter les tests avant de construire l'image
+- ✅ **Multi-stage builds** : Utiliser des Dockerfiles optimisés
+- ✅ **Cache Docker** : Utiliser le cache GitHub Actions pour accélérer
+- ✅ **Secrets sécurisés** : Ne jamais commiter les secrets en clair
+
 ---
 
-## TPs
+## 📚 TPs - Progression du projet
 
-- **TP 01** : Architecture MicroServices et Philosophie DevOps
+Ce projet couvre les 7 TPs du cours DevOps :
+
+- **TP 01** : Architecture MicroServices et Philosophie DevOps ✅
+  - Architecture distribuée
+  - Principes microservices
+  - Communication inter-services
+
 - **TP 02** : Frontend + API Gateway (Next.js) ✅
-- **TP 03** : Auth Service (Python FastAPI + SQLite) ✅
-- **TP 04** : Order Service (NestJS API + SQLite) ✅
+  - Interface utilisateur React
+  - API Gateway centralisé
+  - Routage des requêtes
+
+- **TP 03** : Auth Service (Python FastAPI + PostgreSQL) ✅
+  - Authentification JWT
+  - Multi-tenant
+  - RBAC (Rôle-Based Access Control)
+
+- **TP 04** : Order Service (NestJS + PostgreSQL) ✅
+  - Gestion des commandes
+  - Intégration avec Product Service
+  - Notifications automatiques
+
 - **TP 05** : Conteneurisation (Docker + Docker Compose) ✅
+  - Dockerfiles optimisés
+  - Docker Compose pour l'orchestration locale
+  - Multi-stage builds
+
 - **TP 06** : Orchestration (Kubernetes) ✅
+  - Manifests Kubernetes
+  - Deployments, Services, Ingress
+  - PersistentVolumes pour les données
+
 - **TP 07** : CI/CD (GitHub Actions) ✅
+  - Workflows automatisés
+  - Build et push Docker Hub
+  - Intégration continue
 
 ## Contribution
 

@@ -47,7 +47,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - DATABASE_URL=sqlite:////app/data/auth.db
       - REDIS_URL=redis://redis:6379
       - SECRET_KEY=${JWT_SECRET:-dev-secret-key-change-in-production}
       - ALGORITHM=HS256
@@ -56,11 +56,11 @@ services:
       - PORT=8000
       - CORS_ORIGINS=http://localhost:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
+    volumes:
+      - auth-data:/app/data
     networks:
       - microservices-network
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -93,6 +93,7 @@ services:
       - CORS_ORIGINS=http://localhost:3001
       - AUTH_SERVICE_URL=http://auth-service:8000
       - PRODUCT_SERVICE_URL=http://product-service:4000
+      - PAYMENT_SERVICE_URL=http://payment-service:5000
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
     networks:
       - microservices-network
@@ -150,6 +151,37 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  tenant-service:
+    build:
+      context: ./tenant-service
+      dockerfile: Dockerfile
+    container_name: tenant-service
+    ports:
+      - "7000:7000"
+    environment:
+      - PORT=7000
+      - HOST=0.0.0.0
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - JWT_ALGORITHM=HS256
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_example}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_example}
+      - CORS_ORIGINS=http://localhost:3001
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
   payment-service:
     build:
       context: ./payment-service
@@ -168,11 +200,19 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_example}
       - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
       - CORS_ORIGINS=http://localhost:3001
+      - ORDER_SERVICE_URL=http://order-service:3000
+      - AUTH_SERVICE_URL=http://auth-service:8000
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
     networks:
       - microservices-network
     depends_on:
       postgres:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      order-service:
         condition: service_healthy
     healthcheck:
       test:
@@ -265,6 +305,7 @@ services:
       - PRODUCT_SERVICE_URL=http://product-service:4000
       - PAYMENT_SERVICE_URL=http://payment-service:5000
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
+      - TENANT_SERVICE_URL=http://tenant-service:7000
       - NEXT_PUBLIC_API_URL=http://localhost:3001
     networks:
       - microservices-network
@@ -285,6 +326,8 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  auth-data:
     driver: local
 
 networks:
