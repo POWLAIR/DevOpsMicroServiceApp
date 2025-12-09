@@ -2,7 +2,7 @@
 
 Application microservices E-commerce SaaS multi-tenant avec architecture distribuée, conteneurisation Docker, orchestration Kubernetes et CI/CD automatisé avec GitHub Actions.
 
-> 🚀 **Nouveau sur le projet ?** Consultez le [Guide de Démarrage Rapide](docs/QUICKSTART.md) pour lancer l'application en 5 minutes !
+> 🚀 **Nouveau sur le projet ?** Consultez la section [Installation](#installation) et [Développement](#développement) pour lancer l'application rapidement !
 
 ## 🎯 Vue d'ensemble du projet
 
@@ -81,7 +81,6 @@ DevOpsMicroServiceApp/
 └── docs/                  # Documentation
 ```
 
-> 📚 **Migration Gitea → GitHub** : Consultez [docs/MIGRATION-GITHUB.md](docs/MIGRATION-GITHUB.md)
 
 ### Cloner le repo avec les submodules
 
