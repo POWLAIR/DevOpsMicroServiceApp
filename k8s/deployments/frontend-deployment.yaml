@@ -42,11 +42,36 @@ spec:
                 configMapKeyRef:
                   name: frontend-config
                   key: PRODUCT_SERVICE_URL
+            - name: PAYMENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: PAYMENT_SERVICE_URL
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: NOTIFICATION_SERVICE_URL
+            - name: TENANT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: TENANT_SERVICE_URL
             - name: NEXT_PUBLIC_API_URL
               valueFrom:
                 configMapKeyRef:
                   name: frontend-config
                   key: NEXT_PUBLIC_API_URL
+            - name: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+            - name: DEFAULT_TENANT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: DEFAULT_TENANT_ID
           resources:
             requests:
               memory: "256Mi"

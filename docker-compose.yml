@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: saas_platform
       POSTGRES_USER: saas_admin
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password_change_in_prod}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}
     ports:
       - "5433:5432"
     volumes:
@@ -47,20 +47,20 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:////app/data/auth.db
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}@postgres:5432/saas_platform
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - SECRET_KEY=${JWT_SECRET:?JWT_SECRET is required - set it in .env}
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - HOST=0.0.0.0
       - PORT=8000
       - CORS_ORIGINS=http://localhost:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
-    volumes:
-      - auth-data:/app/data
     networks:
       - microservices-network
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -82,10 +82,10 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=saas_admin
-      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}
       - DB_NAME=saas_platform
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required - set it in .env}
       - JWT_ALGORITHM=HS256
       - PORT=3000
       - HOST=0.0.0.0
@@ -123,10 +123,10 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=saas_admin
-      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}
       - DB_NAME=saas_platform
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required - set it in .env}
       - JWT_ALGORITHM=HS256
       - PORT=4000
       - HOST=0.0.0.0
@@ -161,11 +161,11 @@ services:
     environment:
       - PORT=7000
       - HOST=0.0.0.0
-      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}@postgres:5432/saas_platform
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required - set it in .env}
       - JWT_ALGORITHM=HS256
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_example}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_example}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:?STRIPE_SECRET_KEY is required - set it in .env}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:?STRIPE_WEBHOOK_SECRET is required - set it in .env}
       - CORS_ORIGINS=http://localhost:3001
     networks:
       - microservices-network
@@ -194,11 +194,11 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=saas_admin
-      - DB_PASSWORD=${DB_PASSWORD:-dev_password_change_in_prod}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}
       - DB_NAME=saas_platform
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_example}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_example}
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:?STRIPE_SECRET_KEY is required - set it in .env}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:?STRIPE_WEBHOOK_SECRET is required - set it in .env}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required - set it in .env}
       - CORS_ORIGINS=http://localhost:3001
       - ORDER_SERVICE_URL=http://order-service:3000
       - AUTH_SERVICE_URL=http://auth-service:8000
@@ -239,7 +239,7 @@ services:
       - "6000:6000"
     environment:
       - PORT=6000
-      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}@postgres:5432/saas_platform
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -271,7 +271,7 @@ services:
     container_name: notification-worker
     command: celery -A app.workers.celery_app worker --loglevel=info
     environment:
-      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:-dev_password_change_in_prod}@postgres:5432/saas_platform
+      - DATABASE_URL=postgresql://saas_admin:${DB_PASSWORD:?DB_PASSWORD is required - set it in .env}@postgres:5432/saas_platform
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -307,6 +307,7 @@ services:
       - NOTIFICATION_SERVICE_URL=http://notification-service:6000
       - TENANT_SERVICE_URL=http://tenant-service:7000
       - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - DEFAULT_TENANT_ID=${DEFAULT_TENANT_ID}
     networks:
       - microservices-network
     depends_on:
@@ -326,8 +327,6 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
-    driver: local
-  auth-data:
     driver: local
 
 networks:

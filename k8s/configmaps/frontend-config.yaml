@@ -8,5 +8,10 @@ data:
   AUTH_SERVICE_URL: "http://auth-service:8000"
   ORDER_SERVICE_URL: "http://order-service:3000"
   PRODUCT_SERVICE_URL: "http://product-service:4000"
+  PAYMENT_SERVICE_URL: "http://payment-service:5000"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:6000"
+  TENANT_SERVICE_URL: "http://tenant-service:7000"
   NEXT_PUBLIC_API_URL: "http://localhost:3001"
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_your_stripe_publishable_key_here"
+  DEFAULT_TENANT_ID: "1574b85d-a3df-400f-9e82-98831aa32934"
 

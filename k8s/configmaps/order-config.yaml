@@ -4,11 +4,18 @@ metadata:
   name: order-config
   namespace: microservices
 data:
-  DATABASE_PATH: "./data/orders.db"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_USER: "saas_admin"
+  DB_NAME: "saas_platform"
+  REDIS_URL: "redis://redis:6379"
   JWT_ALGORITHM: "HS256"
   PORT: "3000"
   HOST: "0.0.0.0"
   NODE_ENV: "production"
   CORS_ORIGINS: "http://localhost:3001"
   AUTH_SERVICE_URL: "http://auth-service:8000"
+  PRODUCT_SERVICE_URL: "http://product-service:4000"
+  PAYMENT_SERVICE_URL: "http://payment-service:5000"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:6000"
 

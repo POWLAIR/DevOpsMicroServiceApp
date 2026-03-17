@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-deployment
+  name: tenant-deployment
   namespace: microservices
   labels:
-    app: auth-service
+    app: tenant-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-service
+      app: tenant-service
   template:
     metadata:
       labels:
-        app: auth-service
+        app: tenant-service
     spec:
       containers:
-        - name: auth-service
-          image: powlker/auth-service:latest
+        - name: tenant-service
+          image: powlker/tenant-service:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 8000
+            - containerPort: 7000
           env:
             - name: DB_PASSWORD
               valueFrom:
@@ -29,46 +29,41 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: DATABASE_URL
               value: "postgresql://saas_admin:$(DB_PASSWORD)@postgres:5432/saas_platform"
-            - name: REDIS_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-config
-                  key: REDIS_URL
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: jwt-secret
-                  key: SECRET_KEY
-            - name: ALGORITHM
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-config
-                  key: ALGORITHM
-            - name: ACCESS_TOKEN_EXPIRE_MINUTES
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-config
-                  key: ACCESS_TOKEN_EXPIRE_MINUTES
-            - name: HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-config
-                  key: HOST
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: auth-config
+                  name: tenant-config
                   key: PORT
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tenant-config
+                  key: HOST
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: tenant-config
+                  key: JWT_ALGORITHM
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: payment-secret
+                  key: STRIPE_SECRET_KEY
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: payment-secret
+                  key: STRIPE_WEBHOOK_SECRET
             - name: CORS_ORIGINS
               valueFrom:
                 configMapKeyRef:
-                  name: auth-config
+                  name: tenant-config
                   key: CORS_ORIGINS
-            - name: NOTIFICATION_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-config
-                  key: NOTIFICATION_SERVICE_URL
           resources:
             requests:
               memory: "128Mi"
@@ -79,7 +74,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port: 7000
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -87,8 +82,9 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 8000
-            initialDelaySeconds: 10
+              port: 7000
+            initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
+

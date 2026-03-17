@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: microservices
+data:
+  init.sql: |
+    -- Scripts d'initialisation de la base de données
+    -- Les migrations seront appliquées via les services
+
+

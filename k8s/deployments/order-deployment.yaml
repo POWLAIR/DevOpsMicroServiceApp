@@ -22,11 +22,36 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: DATABASE_PATH
+            - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: order-config
-                  key: DATABASE_PATH
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: REDIS_URL
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -62,9 +87,21 @@ spec:
                 configMapKeyRef:
                   name: order-config
                   key: AUTH_SERVICE_URL
-          volumeMounts:
-            - name: order-storage
-              mountPath: /app/data
+            - name: PRODUCT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: PRODUCT_SERVICE_URL
+            - name: PAYMENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: PAYMENT_SERVICE_URL
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: NOTIFICATION_SERVICE_URL
           resources:
             requests:
               memory: "256Mi"
@@ -88,7 +125,3 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
-      volumes:
-        - name: order-storage
-          persistentVolumeClaim:
-            claimName: order-pvc

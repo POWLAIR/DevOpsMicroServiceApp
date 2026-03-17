@@ -18,6 +18,10 @@ yarn-error.log*
 .env.*.local
 .env.production
 
+# Secrets Kubernetes avec vraies valeurs (commiter uniquement les .yaml.example)
+k8s/secrets/*.yaml
+!k8s/secrets/*.yaml.example
+
 # Dossiers de build et dépendances
 node_modules/
 dist/

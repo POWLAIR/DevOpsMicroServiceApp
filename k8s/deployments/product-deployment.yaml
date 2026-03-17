@@ -22,11 +22,36 @@ spec:
           ports:
             - containerPort: 4000
           env:
-            - name: DATABASE_PATH
+            - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: product-config
-                  key: DATABASE_PATH
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: REDIS_URL
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -67,9 +92,6 @@ spec:
                 configMapKeyRef:
                   name: product-config
                   key: FAKESTORE_API_URL
-          volumeMounts:
-            - name: product-storage
-              mountPath: /app/data
           resources:
             requests:
               memory: "256Mi"
@@ -93,7 +115,3 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
-      volumes:
-        - name: product-storage
-          persistentVolumeClaim:
-            claimName: product-pvc
