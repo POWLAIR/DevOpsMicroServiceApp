@@ -20,28 +20,30 @@
 
 ### Étape 0.1 — Suppression de l'existant
 
-- [ ] Supprimer tout le contenu du dossier `frontend/`
-- [ ] Initialiser un nouveau projet Next.js 16 avec TypeScript et App Router :
+- [x] Supprimer tout le contenu du dossier `frontend/`
+- [x] Initialiser un nouveau projet Next.js 16 avec TypeScript et App Router :
+
   ```bash
   npx create-next-app@latest frontend --typescript --tailwind --app --src-dir=false --import-alias="@/*"
   ```
-- [ ] Conserver le `Dockerfile` multi-stage existant (standalone mode)
-- [ ] Conserver le `next.config.ts` avec `output: 'standalone'`
 
-**Validation** : `docker compose up -d --build frontend` démarre sans erreur, http://localhost:3001 retourne HTTP 200.
+- [x] Conserver le `Dockerfile` multi-stage existant (standalone mode)
+- [x] Conserver le `next.config.ts` avec `output: 'standalone'`
+
+**Validation** : `docker compose up -d --build frontend` démarre sans erreur, <http://localhost:3001> retourne HTTP 200.
 
 ---
 
 ### Étape 0.2 — Design system et configuration globale
 
-- [ ] Définir les tokens CSS dans `app/globals.css` :
+- [x] Définir les tokens CSS dans `app/globals.css` :
   - Palette de couleurs (primary, secondary, success, warning, error, neutral)
   - Typographie (tailles, poids)
   - Espacements, radius, shadows
-- [ ] Créer `lib/constants.ts` : URLs des services, messages d'erreur, énumérations (rôles, statuts)
-- [ ] Créer `lib/types.ts` : tous les types TypeScript basés sur les modèles de données des 6 services
-- [ ] Créer `lib/utils.ts` : fonctions utilitaires (formatage prix, dates, statuts)
-- [ ] Installer les dépendances UI : `clsx`, `tailwind-merge`, `lucide-react` (icônes)
+- [x] Créer `lib/constants.ts` : URLs des services, messages d'erreur, énumérations (rôles, statuts)
+- [x] Créer `lib/types.ts` : tous les types TypeScript basés sur les modèles de données des 6 services
+- [x] Créer `lib/utils.ts` : fonctions utilitaires (formatage prix, dates, statuts)
+- [x] Installer les dépendances UI : `clsx`, `tailwind-merge`, `lucide-react` (icônes)
 
 **Validation** : `npm run build` sans erreur TypeScript.
 
@@ -51,6 +53,7 @@
 
 Créer **toutes** les routes `app/api/*/route.ts` qui proxifient vers les services backend.  
 Chaque route doit :
+
 - Extraire le JWT du cookie `auth-token` ou du header `Authorization`
 - Extraire `X-Tenant-ID` du cookie `x-tenant-id` ou du header
 - Forwarder ces headers au service backend
@@ -59,59 +62,65 @@ Chaque route doit :
 #### Routes à créer
 
 **Auth Service (port 8000)**
-- [ ] `POST /api/auth/register` → `AUTH_SERVICE/auth/register`
-- [ ] `POST /api/auth/login` → `AUTH_SERVICE/auth/login`
-- [ ] `GET /api/auth/validate` → `AUTH_SERVICE/auth/validate`
-- [ ] `POST /api/auth/logout` → `AUTH_SERVICE/auth/logout`
-- [ ] `GET /api/users/me` → `AUTH_SERVICE/api/v1/users/me`
-- [ ] `PATCH /api/users/me` → `AUTH_SERVICE/api/v1/users/me`
-- [ ] `PATCH /api/users/me/password` → `AUTH_SERVICE/api/v1/users/me/password`
-- [ ] `GET /api/tenants` → `AUTH_SERVICE/tenants` (admin only)
-- [ ] `GET /api/tenants/[id]` → `AUTH_SERVICE/tenants/{id}`
-- [ ] `PATCH /api/tenants/[id]` → `AUTH_SERVICE/tenants/{id}`
+
+- [x] `POST /api/auth/register` → `AUTH_SERVICE/auth/register`
+- [x] `POST /api/auth/login` → `AUTH_SERVICE/auth/login`
+- [x] `GET /api/auth/validate` → `AUTH_SERVICE/auth/validate`
+- [x] `POST /api/auth/logout` → `AUTH_SERVICE/auth/logout`
+- [x] `GET /api/users/me` → `AUTH_SERVICE/api/v1/users/me`
+- [x] `PATCH /api/users/me` → `AUTH_SERVICE/api/v1/users/me`
+- [x] `PATCH /api/users/me/password` → `AUTH_SERVICE/api/v1/users/me/password`
+- [x] `GET /api/tenants` → `AUTH_SERVICE/tenants` (admin only)
+- [x] `GET /api/tenants/[id]` → `AUTH_SERVICE/tenants/{id}`
+- [x] `PATCH /api/tenants/[id]` → `AUTH_SERVICE/tenants/{id}`
 
 **Product Service (port 4000)**
-- [ ] `GET /api/products` → `PRODUCT_SERVICE/products` (tenant) ou `/products/all` (marketplace)
-- [ ] `POST /api/products` → `PRODUCT_SERVICE/products` (création)
-- [ ] `GET /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
-- [ ] `PUT /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
-- [ ] `DELETE /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
-- [ ] `PATCH /api/products/[id]/stock` → `PRODUCT_SERVICE/products/{id}/stock`
-- [ ] `GET /api/products/search` → `PRODUCT_SERVICE/products/search?q=`
-- [ ] `GET /api/categories` → `PRODUCT_SERVICE/categories`
-- [ ] `GET /api/products/[id]/reviews` → `PRODUCT_SERVICE/products/{id}/reviews`
-- [ ] `POST /api/products/[id]/reviews` → `PRODUCT_SERVICE/products/{id}/review`
-- [ ] `PUT /api/reviews/[id]` → `PRODUCT_SERVICE/reviews/{id}`
-- [ ] `DELETE /api/reviews/[id]` → `PRODUCT_SERVICE/reviews/{id}`
-- [ ] `GET /api/favorites` → `PRODUCT_SERVICE/favorites`
-- [ ] `POST /api/favorites/[productId]` → `PRODUCT_SERVICE/products/{id}/favorite`
-- [ ] `DELETE /api/favorites/[productId]` → `PRODUCT_SERVICE/products/{id}/favorite`
-- [ ] `GET /api/favorites/check/[productId]` → `PRODUCT_SERVICE/favorites/check/{productId}`
-- [ ] `POST /api/products/validate-batch` → `PRODUCT_SERVICE/products/validate-batch`
-- [ ] `POST /api/products/decrement-stock` → `PRODUCT_SERVICE/products/decrement-stock`
+
+- [x] `GET /api/products` → `PRODUCT_SERVICE/products` (tenant) ou `/products/all` (marketplace)
+- [x] `POST /api/products` → `PRODUCT_SERVICE/products` (création)
+- [x] `GET /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
+- [x] `PUT /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
+- [x] `DELETE /api/products/[id]` → `PRODUCT_SERVICE/products/{id}`
+- [x] `PATCH /api/products/[id]/stock` → `PRODUCT_SERVICE/products/{id}/stock`
+- [x] `GET /api/products/search` → `PRODUCT_SERVICE/products/search?q=`
+- [x] `GET /api/categories` → `PRODUCT_SERVICE/categories`
+- [x] `GET /api/products/[id]/reviews` → `PRODUCT_SERVICE/products/{id}/reviews`
+- [x] `POST /api/products/[id]/reviews` → `PRODUCT_SERVICE/products/{id}/review`
+- [x] `PUT /api/reviews/[id]` → `PRODUCT_SERVICE/reviews/{id}`
+- [x] `DELETE /api/reviews/[id]` → `PRODUCT_SERVICE/reviews/{id}`
+- [x] `GET /api/favorites` → `PRODUCT_SERVICE/favorites`
+- [x] `POST /api/favorites/[productId]` → `PRODUCT_SERVICE/products/{id}/favorite`
+- [x] `DELETE /api/favorites/[productId]` → `PRODUCT_SERVICE/products/{id}/favorite`
+- [x] `GET /api/favorites/check/[productId]` → `PRODUCT_SERVICE/favorites/check/{productId}`
+- [x] `POST /api/products/validate-batch` → `PRODUCT_SERVICE/products/validate-batch`
+- [x] `POST /api/products/decrement-stock` → `PRODUCT_SERVICE/products/decrement-stock`
 
 **Order Service (port 3000)**
-- [ ] `GET /api/orders` → `ORDER_SERVICE/orders`
-- [ ] `POST /api/orders` → `ORDER_SERVICE/orders`
-- [ ] `GET /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
-- [ ] `PUT /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
-- [ ] `DELETE /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
+
+- [x] `GET /api/orders` → `ORDER_SERVICE/orders`
+- [x] `POST /api/orders` → `ORDER_SERVICE/orders`
+- [x] `GET /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
+- [x] `PUT /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
+- [x] `DELETE /api/orders/[id]` → `ORDER_SERVICE/orders/{id}`
 
 **Payment Service (port 5000)**
-- [ ] `POST /api/payments/create-intent` → `PAYMENT_SERVICE/api/v1/payments/create-intent`
-- [ ] `GET /api/payments` → `PAYMENT_SERVICE/api/v1/payments/`
-- [ ] `GET /api/payments/[id]` → `PAYMENT_SERVICE/api/v1/payments/{id}`
+
+- [x] `POST /api/payments/create-intent` → `PAYMENT_SERVICE/api/v1/payments/create-intent`
+- [x] `GET /api/payments` → `PAYMENT_SERVICE/api/v1/payments/`
+- [x] `GET /api/payments/[id]` → `PAYMENT_SERVICE/api/v1/payments/{id}`
 
 **Notification Service (port 6000)**
-- [ ] `GET /api/notifications` → `NOTIFICATION_SERVICE/api/v1/notifications/history`
-- [ ] `GET /api/notifications/unread-count` → `NOTIFICATION_SERVICE/api/v1/notifications/unread-count`
-- [ ] `GET /api/notifications/stats` → `NOTIFICATION_SERVICE/api/v1/notifications/stats`
+
+- [x] `GET /api/notifications` → `NOTIFICATION_SERVICE/api/v1/notifications/history`
+- [x] `GET /api/notifications/unread-count` → `NOTIFICATION_SERVICE/api/v1/notifications/unread-count`
+- [x] `GET /api/notifications/stats` → `NOTIFICATION_SERVICE/api/v1/notifications/stats`
 
 **Tenant Service (port 7000)**
-- [ ] `GET /api/plans` → `TENANT_SERVICE/plans`
-- [ ] `POST /api/tenant-onboarding` → `TENANT_SERVICE/tenants`
-- [ ] `GET /api/tenant-onboarding/[tenantId]/progress` → `TENANT_SERVICE/onboarding/{id}/progress`
-- [ ] `POST /api/tenant-onboarding/[tenantId]/complete-step` → `TENANT_SERVICE/onboarding/{id}/complete-step`
+
+- [x] `GET /api/plans` → `TENANT_SERVICE/plans`
+- [x] `POST /api/tenant-onboarding` → `TENANT_SERVICE/tenants`
+- [x] `GET /api/tenant-onboarding/[tenantId]/progress` → `TENANT_SERVICE/onboarding/{id}/progress`
+- [x] `POST /api/tenant-onboarding/[tenantId]/complete-step` → `TENANT_SERVICE/onboarding/{id}/complete-step`
 
 **Validation** : chaque route testée avec `curl -s http://localhost:3001/api/[route]` retourne un code HTTP attendu (200 ou 401 si non authentifié).
 
@@ -119,17 +128,17 @@ Chaque route doit :
 
 ### Étape 0.4 — Gestion de l'authentification côté client
 
-- [ ] Créer `lib/auth.ts` :
+- [x] Créer `lib/auth.ts` :
   - `saveSession(token, user)` → stocke dans localStorage + cookie `auth-token`
   - `getSession()` → lit depuis localStorage
   - `clearSession()` → supprime token et cookies
   - `getToken()` → retourne le JWT courant
   - `getTenantId()` → retourne le `tenant_id` de l'utilisateur courant
-- [ ] Créer `lib/auth-context.tsx` : Context React qui expose `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`, `refreshUser()`
-- [ ] Envelopper `app/layout.tsx` dans `<AuthProvider>`
-- [ ] Créer le composant `components/auth/ProtectedRoute.tsx` : redirige vers `/login` si non authentifié
+- [x] Créer `lib/auth-context.tsx` : Context React qui expose `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`, `refreshUser()`
+- [x] Envelopper `app/layout.tsx` dans `<AuthProvider>`
+- [x] Créer le composant `components/auth/ProtectedRoute.tsx` : redirige vers `/login` si non authentifié
 
-**Validation** : connexion sur http://localhost:3001/login avec `admin@example.com` / `Test1234!` → le token est stocké, l'utilisateur est chargé.
+**Validation** : connexion sur <http://localhost:3001/login> avec `admin@example.com` / `Test1234!` → le token est stocké, l'utilisateur est chargé.
 
 ---
 
@@ -137,16 +146,16 @@ Chaque route doit :
 
 ### Étape 1.1 — Layout principal
 
-- [ ] Créer `app/layout.tsx` : HTML global, `<AuthProvider>`, `<ToastProvider>`
-- [ ] Créer `components/layout/Header.tsx` :
+- [x] Créer `app/layout.tsx` : HTML global, `<AuthProvider>`, `<ToastProvider>`
+- [x] Créer `components/layout/Header.tsx` :
   - Logo + nom de l'application (cliquable → `/`)
   - Barre de recherche globale (produits)
   - Icône panier avec badge (nombre d'articles)
   - Icône notifications avec badge (unread-count depuis l'API)
   - Menu utilisateur : avatar, nom, rôle → dropdown avec liens Profil / Déconnexion
   - Si non connecté : boutons "Connexion" et "S'inscrire"
-- [ ] Créer `components/layout/Footer.tsx` : liens légaux, version, état des services
-- [ ] Créer `components/layout/Sidebar.tsx` : navigation latérale conditionnelle selon le rôle
+- [x] Créer `components/layout/Footer.tsx` : liens légaux, version, état des services
+- [x] Créer `components/layout/Sidebar.tsx` : navigation latérale conditionnelle selon le rôle
 
 **Validation** : le header s'affiche sur toutes les pages, le badge notifications se charge depuis l'API.
 
@@ -156,18 +165,18 @@ Chaque route doit :
 
 Créer dans `components/ui/` :
 
-- [ ] `Button.tsx` : variantes primary, secondary, outline, ghost, danger ; tailles sm, md, lg ; état loading avec spinner
-- [ ] `Input.tsx` : label flottant, message d'erreur, icône optionnelle
-- [ ] `Badge.tsx` : variantes de couleur selon les statuts
-- [ ] `Card.tsx` : conteneur avec shadow et radius
-- [ ] `Modal.tsx` : dialog avec backdrop, header, body, footer
-- [ ] `Spinner.tsx` : animation de chargement
-- [ ] `Skeleton.tsx` : placeholder de chargement (1-5 lignes)
-- [ ] `Toast.tsx` + `ToastContainer.tsx` : notifications temporaires (success, error, info, warning)
-- [ ] `Pagination.tsx` : navigation entre pages
-- [ ] `EmptyState.tsx` : illustration + texte pour les listes vides
-- [ ] `ErrorBoundary.tsx` : capture des erreurs React avec message utilisateur
-- [ ] `Table.tsx` : tableau responsive avec tri et sélection
+- [x] `Button.tsx` : variantes primary, secondary, outline, ghost, danger ; tailles sm, md, lg ; état loading avec spinner
+- [x] `Input.tsx` : label flottant, message d'erreur, icône optionnelle
+- [x] `Badge.tsx` : variantes de couleur selon les statuts
+- [x] `Card.tsx` : conteneur avec shadow et radius
+- [x] `Modal.tsx` : dialog avec backdrop, header, body, footer
+- [x] `Spinner.tsx` : animation de chargement
+- [x] `Skeleton.tsx` : placeholder de chargement (1-5 lignes)
+- [x] `Toast.tsx` + `ToastContainer.tsx` : notifications temporaires (success, error, info, warning)
+- [x] `Pagination.tsx` : navigation entre pages
+- [x] `EmptyState.tsx` : illustration + texte pour les listes vides
+- [x] `ErrorBoundary.tsx` : capture des erreurs React avec message utilisateur
+- [x] `Table.tsx` : tableau responsive avec tri et sélection
 
 **Validation** : chaque composant visible dans un fichier de démonstration `/dev` (à supprimer en fin de projet).
 
@@ -175,9 +184,9 @@ Créer dans `components/ui/` :
 
 ### Étape 1.3 — Pages d'erreur
 
-- [ ] `app/not-found.tsx` : page 404 avec retour à l'accueil
-- [ ] `app/error.tsx` : page d'erreur globale avec retry
-- [ ] `app/loading.tsx` : skeleton global pendant les navigations
+- [x] `app/not-found.tsx` : page 404 avec retour à l'accueil
+- [x] `app/error.tsx` : page d'erreur globale avec retry
+- [x] `app/loading.tsx` : skeleton global pendant les navigations
 
 ---
 
@@ -187,15 +196,16 @@ Créer dans `components/ui/` :
 
 **URL** : `/login`
 
-- [ ] Formulaire : champ email, champ mot de passe (toggle visibilité), bouton "Se connecter"
-- [ ] Validation côté client : email valide, mot de passe non vide
-- [ ] Appel `POST /api/auth/login` avec `X-Tenant-ID` (depuis cookie ou tenant par défaut)
-- [ ] En cas de succès : `saveSession(token, user)`, redirection vers `/` ou URL de retour (`?redirect=`)
-- [ ] En cas d'erreur : message d'erreur sous le formulaire (pas de toast)
-- [ ] Lien "Pas encore de compte ? S'inscrire" → `/register`
-- [ ] Si déjà connecté : redirection immédiate vers `/`
+- [x] Formulaire : champ email, champ mot de passe (toggle visibilité), bouton "Se connecter"
+- [x] Validation côté client : email valide, mot de passe non vide
+- [x] Appel `POST /api/auth/login` avec `X-Tenant-ID` (depuis cookie ou tenant par défaut)
+- [x] En cas de succès : `saveSession(token, user)`, redirection vers `/` ou URL de retour (`?redirect=`)
+- [x] En cas d'erreur : message d'erreur sous le formulaire (pas de toast)
+- [x] Lien "Pas encore de compte ? S'inscrire" → `/register`
+- [x] Si déjà connecté : redirection immédiate vers `/`
 
 **Validation** :
+
 - Login avec `admin@example.com` / `Test1234!` → redirige vers `/`
 - Login avec mauvais mot de passe → message "Identifiants incorrects" visible
 
@@ -205,13 +215,14 @@ Créer dans `components/ui/` :
 
 **URL** : `/register`
 
-- [ ] Formulaire : email, mot de passe (min 8 caractères), confirmation mot de passe, nom complet (optionnel)
-- [ ] Validation : email unique, mots de passe identiques et conformes
-- [ ] Appel `POST /api/auth/register`
-- [ ] En cas de succès : session sauvegardée, redirection vers `/`
-- [ ] En cas d'erreur : affichage du message d'erreur backend (ex. email déjà utilisé)
+- [x] Formulaire : email, mot de passe (min 8 caractères), confirmation mot de passe, nom complet (optionnel)
+- [x] Validation : email unique, mots de passe identiques et conformes
+- [x] Appel `POST /api/auth/register`
+- [x] En cas de succès : session sauvegardée, redirection vers `/`
+- [x] En cas d'erreur : affichage du message d'erreur backend (ex. email déjà utilisé)
 
 **Validation** :
+
 - Inscription avec un nouvel email → compte créé, session active
 - Inscription avec un email déjà existant → message d'erreur affiché
 
@@ -223,21 +234,22 @@ Créer dans `components/ui/` :
 
 **URL** : `/products`
 
-- [ ] Appel `GET /api/products` (avec `X-Tenant-ID` si connecté, sinon mode marketplace via `?all=true`)
-- [ ] Affichage en grille responsive (4 colonnes desktop, 2 tablette, 1 mobile)
-- [ ] Chaque `ProductCard` affiche : image, nom, catégorie, prix, note étoiles, stock disponible
-- [ ] **Filtres** (panneau latéral ou drawer mobile) :
+- [x] Appel `GET /api/products` (avec `X-Tenant-ID` si connecté, sinon mode marketplace via `?all=true`)
+- [x] Affichage en grille responsive (4 colonnes desktop, 2 tablette, 1 mobile)
+- [x] Chaque `ProductCard` affiche : image, nom, catégorie, prix, note étoiles, stock disponible
+- [x] **Filtres** (panneau latéral ou drawer mobile) :
   - Catégorie : `GET /api/categories` → liste de checkboxes
   - Fourchette de prix : slider double (min/max)
   - En stock seulement : checkbox
-- [ ] **Tri** : menu déroulant (Prix croissant, Prix décroissant, Note, Popularité)
-- [ ] **Recherche** : barre de recherche → `GET /api/products/search?q=` avec debounce 300ms
-- [ ] Nombre de résultats affiché ("X produits trouvés")
-- [ ] Pagination ou infinite scroll
-- [ ] Skeleton pendant le chargement (grille de 8 cartes fantômes)
-- [ ] État vide si aucun résultat avec message et reset des filtres
+- [x] **Tri** : menu déroulant (Prix croissant, Prix décroissant, Note, Popularité)
+- [x] **Recherche** : barre de recherche → `GET /api/products/search?q=` avec debounce 300ms
+- [x] Nombre de résultats affiché ("X produits trouvés")
+- [x] Pagination ou infinite scroll
+- [x] Skeleton pendant le chargement (grille de 8 cartes fantômes)
+- [x] État vide si aucun résultat avec message et reset des filtres
 
 **Validation** :
+
 - La page affiche les 20+ produits seedés
 - Filtrage par catégorie "Electronics" → uniquement les produits electronics
 - Recherche "laptop" → résultats filtrés
@@ -249,20 +261,21 @@ Créer dans `components/ui/` :
 
 **URL** : `/products/[id]`
 
-- [ ] Appel `GET /api/products/[id]`
-- [ ] Layout deux colonnes : image (gauche) + informations (droite)
-- [ ] Informations affichées : nom, catégorie (badge), prix, note étoiles + nombre d'avis, stock (badge vert/rouge/orange), description
-- [ ] **Sélecteur de quantité** : input numérique avec `+` / `−`, max = stock disponible
-- [ ] **Bouton "Ajouter au panier"** : désactivé si stock = 0
-- [ ] **Bouton favori** (cœur) : `GET /api/favorites/check/[id]` pour l'état initial, `POST` / `DELETE /api/favorites/[id]` au clic (connecté requis)
-- [ ] Section **avis** :
+- [x] Appel `GET /api/products/[id]`
+- [x] Layout deux colonnes : image (gauche) + informations (droite)
+- [x] Informations affichées : nom, catégorie (badge), prix, note étoiles + nombre d'avis, stock (badge vert/rouge/orange), description
+- [x] **Sélecteur de quantité** : input numérique avec `+` / `−`, max = stock disponible
+- [x] **Bouton "Ajouter au panier"** : désactivé si stock = 0
+- [x] **Bouton favori** (cœur) : `GET /api/favorites/check/[id]` pour l'état initial, `POST` / `DELETE /api/favorites/[id]` au clic (connecté requis)
+- [x] Section **avis** :
   - Appel `GET /api/products/[id]/reviews`
   - Affichage de la liste (auteur anonymisé, note, commentaire, date)
   - Formulaire d'ajout d'avis si connecté : note (1-5 étoiles cliquables), commentaire optionnel → `POST /api/products/[id]/reviews`
-- [ ] Breadcrumb : Accueil > Produits > [Catégorie] > [Nom produit]
-- [ ] Skeleton pendant le chargement
+- [x] Breadcrumb : Accueil > Produits > [Catégorie] > [Nom produit]
+- [x] Skeleton pendant le chargement
 
 **Validation** :
+
 - Page charge les données réelles d'un produit
 - Ajout au panier met à jour le badge du header
 - Ajout d'un favori (connecté) persiste après refresh de la page
@@ -274,15 +287,15 @@ Créer dans `components/ui/` :
 
 ### Étape 4.1 — Gestion du panier (état local)
 
-- [ ] Créer `lib/cart.tsx` : Context React avec état du panier en localStorage
+- [x] Créer `lib/cart.tsx` : Context React avec état du panier en localStorage
   - `addItem(product, quantity)` : vérifie le stock disponible via `POST /api/products/validate-batch`
   - `removeItem(productId)`
   - `updateQuantity(productId, quantity)`
   - `clearCart()`
   - `getTotal()` : calcule le total TTC
   - `itemCount` : nombre total d'articles
-- [ ] `CartButton` dans le header : icône + badge avec `itemCount`
-- [ ] `CartDropdown` : preview du panier (max 3 articles + "Voir le panier") au survol/clic
+- [x] `CartButton` dans le header : icône + badge avec `itemCount`
+- [x] `CartDropdown` : preview du panier (max 3 articles + "Voir le panier") au survol/clic
 
 **Validation** : ajout de 2 produits différents → badge = 2, total correct affiché dans le dropdown.
 
@@ -292,15 +305,16 @@ Créer dans `components/ui/` :
 
 **URL** : `/cart`
 
-- [ ] Liste des articles avec : image miniature, nom, prix unitaire, quantité modifiable, total ligne, bouton suppression
-- [ ] Résumé : sous-total, frais de livraison (0€ si > 50€, sinon 5€), total TTC
-- [ ] **Vider le panier** (avec confirmation via Modal)
-- [ ] **Continuer les achats** → `/products`
-- [ ] **Passer la commande** → `/checkout` (redirige vers `/login?redirect=/checkout` si non connecté)
-- [ ] Si panier vide : `EmptyState` avec bouton "Découvrir les produits"
-- [ ] Vérification stock en temps réel via `POST /api/products/validate-batch` → alerte si un article n'est plus disponible
+- [x] Liste des articles avec : image miniature, nom, prix unitaire, quantité modifiable, total ligne, bouton suppression
+- [x] Résumé : sous-total, frais de livraison (0€ si > 50€, sinon 5€), total TTC
+- [x] **Vider le panier** (avec confirmation via Modal)
+- [x] **Continuer les achats** → `/products`
+- [x] **Passer la commande** → `/checkout` (redirige vers `/login?redirect=/checkout` si non connecté)
+- [x] Si panier vide : `EmptyState` avec bouton "Découvrir les produits"
+- [x] Vérification stock en temps réel via `POST /api/products/validate-batch` → alerte si un article n'est plus disponible
 
 **Validation** :
+
 - Modification de quantité met à jour le total instantanément
 - Article hors stock : alerte visible, bouton checkout désactivé
 
@@ -313,20 +327,23 @@ Créer dans `components/ui/` :
 **URL** : `/checkout` (route protégée)
 
 **Étape 1 : Récapitulatif**
-- [ ] Affichage de la liste des articles du panier (lecture seule)
-- [ ] Total de la commande
-- [ ] Bouton "Confirmer et payer" → appel `POST /api/orders` avec les articles et `status: "pending"`
-- [ ] En cas de succès : passer à l'étape 2 avec l'`orderId` retourné
+
+- [x] Affichage de la liste des articles du panier (lecture seule)
+- [x] Total de la commande
+- [x] Bouton "Confirmer et payer" → appel `POST /api/orders` avec les articles et `status: "pending"`
+- [x] En cas de succès : passer à l'étape 2 avec l'`orderId` retourné
 
 **Étape 2 : Paiement**
-- [ ] Appel `POST /api/payments/create-intent` avec `amount` et `order_id`
-- [ ] Affichage du formulaire Stripe avec le `client_secret`
-- [ ] **En mode simulation** (clé Stripe fictive) : afficher un message "Mode test — aucun paiement réel" + bouton "Simuler le paiement réussi" qui marque le paiement comme `succeeded` directement (via un appel au webhook interne ou en redirigeant directement)
-- [ ] **En mode production** (vraie clé Stripe) : formulaire Stripe complet
-- [ ] En cas de succès : vider le panier + décrémenter le stock via `POST /api/products/decrement-stock` + redirection vers `/orders?success=true`
-- [ ] En cas d'erreur : message d'erreur explicite + bouton "Réessayer"
+
+- [x] Appel `POST /api/payments/create-intent` avec `amount` et `order_id`
+- [x] Affichage du formulaire Stripe avec le `client_secret`
+- [x] **En mode simulation** (clé Stripe fictive) : afficher un message "Mode test — aucun paiement réel" + bouton "Simuler le paiement réussi" qui marque le paiement comme `succeeded` directement (via un appel au webhook interne ou en redirigeant directement)
+- [x] **En mode production** (vraie clé Stripe) : formulaire Stripe complet
+- [x] En cas de succès : vider le panier + décrémenter le stock via `POST /api/products/decrement-stock` + redirection vers `/orders?success=true`
+- [x] En cas d'erreur : message d'erreur explicite + bouton "Réessayer"
 
 **Validation** :
+
 - Commande créée apparaît dans `GET /api/orders`
 - Paiement créé apparaît dans `GET /api/payments`
 - Stock du produit décrémenté dans `GET /api/products/[id]`
@@ -339,24 +356,25 @@ Créer dans `components/ui/` :
 
 **URL** : `/orders` (route protégée)
 
-- [ ] Appel `GET /api/orders`
-- [ ] Tableau des commandes avec colonnes : ID (tronqué), Date, Statut (badge coloré), Statut paiement (badge), Total, Actions
-- [ ] Badges de statut :
+- [x] Appel `GET /api/orders`
+- [x] Tableau des commandes avec colonnes : ID (tronqué), Date, Statut (badge coloré), Statut paiement (badge), Total, Actions
+- [x] Badges de statut :
   - `pending` → jaune
   - `confirmed` → bleu
   - `shipped` → violet
   - `cancelled` → rouge
-- [ ] Badges paiement :
+- [x] Badges paiement :
   - `unpaid` / `pending` → gris
   - `paid` / `succeeded` → vert
   - `failed` → rouge
-- [ ] **Filtre par statut** : tabs ou menu déroulant
-- [ ] Clic sur une commande → drawer ou page `/orders/[id]` avec le détail
-- [ ] **Pour les marchands/admins** : bouton "+ Nouvelle commande" → Modal `OrderForm`
-- [ ] Skeleton pendant le chargement
-- [ ] `EmptyState` si aucune commande
+- [x] **Filtre par statut** : tabs ou menu déroulant
+- [x] Clic sur une commande → drawer ou page `/orders/[id]` avec le détail
+- [x] **Pour les marchands/admins** : bouton "+ Nouvelle commande" → Modal `OrderForm`
+- [x] Skeleton pendant le chargement
+- [x] `EmptyState` si aucune commande
 
 **Validation** :
+
 - La commande créée au checkout apparaît dans la liste
 - Filtrage par statut "pending" → uniquement les commandes pending
 
@@ -366,10 +384,10 @@ Créer dans `components/ui/` :
 
 **URL** : `/orders/[id]` (route protégée)
 
-- [ ] Appel `GET /api/orders/[id]`
-- [ ] Affichage complet : ID, date, statuts, liste des articles avec prix, total détaillé
-- [ ] **Pour les marchands/admins** : sélecteur de statut modifiable → `PUT /api/orders/[id]`
-- [ ] Lien vers le paiement associé si `paymentId` existe
+- [x] Appel `GET /api/orders/[id]`
+- [x] Affichage complet : ID, date, statuts, liste des articles avec prix, total détaillé
+- [x] **Pour les marchands/admins** : sélecteur de statut modifiable → `PUT /api/orders/[id]`
+- [x] Lien vers le paiement associé si `paymentId` existe
 
 **Validation** : changement de statut `pending` → `confirmed` reflété immédiatement sans reload.
 
@@ -381,17 +399,18 @@ Créer dans `components/ui/` :
 
 **URL** : `/payments` (marchands et admins uniquement)
 
-- [ ] Appel `GET /api/payments`
-- [ ] Résumé en haut (3 cartes KPI) :
+- [x] Appel `GET /api/payments`
+- [x] Résumé en haut (3 cartes KPI) :
   - Total encaissé (paiements `succeeded`)
   - Commission plateforme (5%)
   - Net marchand
-- [ ] Tableau des paiements : ID, Commande liée, Montant, Commission, Statut, Date
-- [ ] Badge de statut coloré (`succeeded` vert, `pending` jaune, `failed` rouge)
-- [ ] **Export CSV** : génération client-side du CSV à partir des données affichées
-- [ ] Pagination
+- [x] Tableau des paiements : ID, Commande liée, Montant, Commission, Statut, Date
+- [x] Badge de statut coloré (`succeeded` vert, `pending` jaune, `failed` rouge)
+- [x] **Export CSV** : génération client-side du CSV à partir des données affichées
+- [x] Pagination
 
 **Validation** :
+
 - Le paiement créé au checkout apparaît dans la liste
 - L'export CSV contient toutes les lignes du tableau
 
@@ -403,19 +422,20 @@ Créer dans `components/ui/` :
 
 **URL** : `/profile` (route protégée)
 
-- [ ] Appel `GET /api/users/me` au chargement
-- [ ] **Section "Informations"** :
+- [x] Appel `GET /api/users/me` au chargement
+- [x] **Section "Informations"** :
   - Champs : nom complet, email (en lecture si `email_verified = false` → indication)
   - Bouton "Sauvegarder" → `PATCH /api/users/me`
   - Toast de confirmation
-- [ ] **Section "Mot de passe"** :
+- [x] **Section "Mot de passe"** :
   - Champs : mot de passe actuel, nouveau mot de passe, confirmation
   - Bouton "Changer le mot de passe" → `PATCH /api/users/me/password`
   - Toast de confirmation ou message d'erreur
-- [ ] **Section "Mon compte"** :
+- [x] **Section "Mon compte"** :
   - Affichage du rôle, de la date de création, de l'état de vérification email
 
 **Validation** :
+
 - Changement de nom → visible immédiatement dans le header
 - Changement de mot de passe incorrect → message d'erreur précis
 
@@ -425,12 +445,13 @@ Créer dans `components/ui/` :
 
 **URL** : `/favorites` (route protégée)
 
-- [ ] Appel `GET /api/favorites`
-- [ ] Grille de `ProductCard` avec bouton "Retirer des favoris" sur chaque carte
-- [ ] Suppression optimiste (retire immédiatement de l'UI, rollback si erreur)
-- [ ] `EmptyState` avec lien vers `/products`
+- [x] Appel `GET /api/favorites`
+- [x] Grille de `ProductCard` avec bouton "Retirer des favoris" sur chaque carte
+- [x] Suppression optimiste (retire immédiatement de l'UI, rollback si erreur)
+- [x] `EmptyState` avec lien vers `/products`
 
 **Validation** :
+
 - Produit ajouté en favori depuis `/products/[id]` apparaît ici
 - Suppression : disparaît immédiatement de la grille
 
@@ -442,14 +463,15 @@ Créer dans `components/ui/` :
 
 **URL** : `/notifications` (route protégée)
 
-- [ ] Appel `GET /api/notifications` avec pagination
-- [ ] Appel `GET /api/notifications/stats` pour le résumé en haut
-- [ ] Tableau des notifications : Type (Email/SMS), Destinataire, Sujet, Statut, Date d'envoi
-- [ ] **Filtres** : Type (Tous/Email/SMS), Statut (Tous/Envoyé/Échoué/En attente)
-- [ ] Badge de statut coloré (`sent` vert, `failed` rouge, `queued`/`pending` jaune)
-- [ ] **Badge "non lues"** dans le header : appel `GET /api/notifications/unread-count` au chargement et toutes les 30 secondes (polling)
+- [x] Appel `GET /api/notifications` avec pagination
+- [x] Appel `GET /api/notifications/stats` pour le résumé en haut
+- [x] Tableau des notifications : Type (Email/SMS), Destinataire, Sujet, Statut, Date d'envoi
+- [x] **Filtres** : Type (Tous/Email/SMS), Statut (Tous/Envoyé/Échoué/En attente)
+- [x] Badge de statut coloré (`sent` vert, `failed` rouge, `queued`/`pending` jaune)
+- [x] **Badge "non lues"** dans le header : appel `GET /api/notifications/unread-count` au chargement et toutes les 30 secondes (polling)
 
 **Validation** :
+
 - La notification welcome-email apparaît après inscription
 - La notification order-confirmation apparaît après un checkout
 - Le badge dans le header affiche le bon compteur
@@ -473,6 +495,7 @@ Créer dans `components/ui/` :
 - [ ] Skeleton sur chaque KPI en attente
 
 **Validation** :
+
 - Les KPIs correspondent aux données réelles des APIs
 - Les chiffres se mettent à jour après un nouveau paiement
 
@@ -495,6 +518,7 @@ Créer dans `components/ui/` :
 - [ ] Pagination
 
 **Validation** :
+
 - Produit créé apparaît immédiatement dans la liste
 - Modification du stock reflétée dans `/products/[id]` (vue publique)
 
@@ -527,6 +551,7 @@ Créer dans `components/ui/` :
 - [ ] À chaque "Suivant" : `POST /api/tenant-onboarding/[tenantId]/complete-step` avec le numéro de l'étape
 
 **Validation** :
+
 - Progression sauvegardée : refresh de la page → on reste à la même étape
 - Fin de l'onboarding → redirection `/dashboard`, `onboardingCompleted: true` dans l'API
 
@@ -544,6 +569,7 @@ Créer dans `components/ui/` :
 - [ ] **Créer un tenant** : Modal `TenantForm` → `POST /api/tenants` (via auth-service)
 
 **Validation** :
+
 - Changement de statut `active` → `suspended` visible immédiatement dans le tableau
 
 ---
@@ -622,13 +648,16 @@ Créer dans `components/ui/` :
 ## Points d'attention
 
 ### Pas de simulation dans l'UI
+
 - Le payment-service retourne un vrai `client_secret` (fictif en mode simulation, réel avec Stripe) — l'UI affiche toujours ce que l'API retourne. Le paiement est toujours enregistré en DB.
 - Le notification-service stocke toujours chaque notification en DB même sans clés SendGrid/Twilio — l'UI affiche l'historique réel.
 - **Aucun `Math.random()` ni donnée hardcodée dans les composants d'affichage.**
 
 ### Fonctionnalité "Gestion d'équipe" — non implémentée en backend
+
 Les routes `GET /api/v1/team/*` et `POST /api/v1/team/invite` **n'existent pas dans l'auth-service**. Cette fonctionnalité ne doit pas être présente dans le frontend avant d'être implémentée côté backend. Afficher une page "Bientôt disponible" si la navigation y mène.
 
 ### Multi-tenant
+
 - Chaque requête vers product-service, order-service et payment-service doit inclure `X-Tenant-ID` dans les headers (extrait du JWT de l'utilisateur connecté).
 - Le tenant par défaut `1574b85d-a3df-400f-9e82-98831aa32934` ne doit pas être hardcodé : lire `user.tenant_id` depuis le contexte d'authentification.

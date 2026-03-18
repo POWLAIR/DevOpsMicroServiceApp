@@ -1,0 +1,101 @@
+# Hot reload override pour le développement local
+#
+# Usage :
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   make hotreload
+#
+# Chaque service monte son code source en volume et active le rechargement
+# automatique propre à sa stack.
+
+services:
+
+  # ─── FastAPI – uvicorn --reload ──────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile.dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./auth-service:/app
+    environment:
+      - NODE_ENV=development
+
+  # ─── NestJS – nest start --watch ─────────────────────────────────────────────
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile.dev
+    command: npm run start:dev
+    volumes:
+      - ./order-service:/app
+      - /app/node_modules   # volume anonyme pour préserver les deps du conteneur
+    environment:
+      - NODE_ENV=development
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile.dev
+    command: npm run start:dev
+    volumes:
+      - ./product-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+
+  tenant-service:
+    build:
+      context: ./tenant-service
+      dockerfile: Dockerfile.dev
+    command: npm run start:dev
+    volumes:
+      - ./tenant-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+
+  # ─── Go – air (live reload) ───────────────────────────────────────────────────
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./payment-service:/app
+      - /app/tmp            # dossier de build temporaire d'air
+    environment:
+      - CGO_ENABLED=0
+
+  # ─── FastAPI + Celery – uvicorn --reload / watchmedo ─────────────────────────
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile.dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 6000 --reload
+    volumes:
+      - ./notification-service:/app
+
+  notification-worker:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile.dev
+    command: >
+      watchmedo auto-restart
+        --directory=.
+        --pattern=*.py
+        --recursive
+        --
+        celery -A app.workers.celery_app worker --loglevel=info
+    volumes:
+      - ./notification-service:/app
+
+  # ─── Next.js – next dev (HMR natif) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next           # cache de compilation Next.js
+    environment:
+      - NODE_ENV=development

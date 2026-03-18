@@ -28,14 +28,24 @@
 
 ## 1. Prérequis et démarrage
 
-### Lancer les conteneurs
+### Lancer les conteneurs (recommandé en local)
 
 ```bash
 cd DevOpsMicroServiceApp
-docker compose up -d
+make dev
 ```
 
-Attendre que tous les services soient `healthy` (environ 60 secondes) :
+Cette commande lance le build, démarre les conteneurs, attend les healthchecks, puis exécute le seed des données (produits, avis, favoris, commandes). Une seule commande pour tout initialiser.
+
+### Alternative : démarrage manuel
+
+```bash
+docker compose up -d
+# Attendre ~60s que les services soient healthy
+bash scripts/init-complete-data.sh   # seed des données
+```
+
+Vérifier que tous les services sont `healthy` :
 
 ```bash
 docker ps --format "table {{.Names}}\t{{.Status}}"

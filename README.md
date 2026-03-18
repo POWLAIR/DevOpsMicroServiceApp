@@ -2,7 +2,7 @@
 
 Application microservices E-commerce SaaS multi-tenant avec architecture distribuée, conteneurisation Docker, orchestration Kubernetes et CI/CD automatisé avec GitHub Actions.
 
-> 🚀 **Nouveau sur le projet ?** Consultez la section [Installation](#installation) et [Développement](#développement) pour lancer l'application rapidement !
+> 🚀 **Nouveau sur le projet ?** En local avec Docker : `make dev` (build + up + seed). Voir [Installation](#installation) et [Développement](#développement).
 
 ## 🎯 Vue d'ensemble du projet
 
@@ -118,11 +118,20 @@ git push origin main
 
 ## Prérequis
 
-- Node.js 20+
-- Python 3.11+ (pour Auth Service)
-- npm ou yarn
+- Docker et Docker Compose
+- Node.js 20+ (si développement hors Docker)
+- Python 3.11+ (si développement hors Docker)
 
-## Installation
+## Démarrage rapide (Docker — local)
+
+```bash
+# Depuis la racine du projet
+make dev
+```
+
+Cette commande lance le build, démarre tous les services, attend les healthchecks, puis seed les données. Le frontend est accessible sur **http://localhost:3001**.
+
+## Installation (développement hors Docker)
 
 ### 1. Frontend (Next.js)
 
