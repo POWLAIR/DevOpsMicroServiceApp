@@ -530,25 +530,25 @@ Créer dans `components/ui/` :
 
 **URL** : `/onboarding` (marchands et admins uniquement)
 
-- [ ] Au chargement : `GET /api/tenant-onboarding/[tenantId]/progress` pour reprendre où on en est
-- [ ] Indicateur de progression (stepper 5 étapes)
-- [ ] **Étape 1 — Infos boutique** :
+- [x] Au chargement : `GET /api/tenant-onboarding/[tenantId]/progress` pour reprendre où on en est
+- [x] Indicateur de progression (stepper 5 étapes)
+- [x] **Étape 1 — Infos boutique** :
   - Champs : nom de la boutique, email de contact, sous-domaine
   - Appel `PATCH /api/tenants/[id]` pour sauvegarder
-- [ ] **Étape 2 — Choix du plan** :
+- [x] **Étape 2 — Choix du plan** :
   - Appel `GET /api/plans` → affichage des 4 plans (Free/Starter/Pro/Enterprise) en cards comparatives
   - Sélection du plan → `PATCH /api/tenants/[id]`
-- [ ] **Étape 3 — Configuration** :
+- [x] **Étape 3 — Configuration** :
   - Champs : description de la boutique, domaine personnalisé optionnel
   - Sauvegarde → `PATCH /api/tenants/[id]`
-- [ ] **Étape 4 — Produits** :
+- [x] **Étape 4 — Produits** :
   - Choix de la méthode d'import (Manuel = lien vers `/products/manage`, CSV = upload futur)
   - Affichage du nombre de produits actuels
-- [ ] **Étape 5 — Confirmation** :
+- [x] **Étape 5 — Confirmation** :
   - Résumé de la configuration
   - Bouton "Terminer l'onboarding" → `POST /api/tenant-onboarding/[tenantId]/complete-step` avec `{ step: 5 }`
   - Redirection vers `/dashboard`
-- [ ] À chaque "Suivant" : `POST /api/tenant-onboarding/[tenantId]/complete-step` avec le numéro de l'étape
+- [x] À chaque "Suivant" : `POST /api/tenant-onboarding/[tenantId]/complete-step` avec le numéro de l'étape
 
 **Validation** :
 
@@ -563,10 +563,10 @@ Créer dans `components/ui/` :
 
 **URL** : `/admin/tenants` (platform_admin uniquement)
 
-- [ ] Appel `GET /api/tenants`
-- [ ] Tableau des tenants : Nom, Slug, Plan, Statut, Date de création, Actions
-- [ ] **Modifier un tenant** : Modal → `PATCH /api/tenants/[id]` (nom, plan, statut)
-- [ ] **Créer un tenant** : Modal `TenantForm` → `POST /api/tenants` (via auth-service)
+- [x] Appel `GET /api/tenants`
+- [x] Tableau des tenants : Nom, Slug, Plan, Statut, Date de création, Actions
+- [x] **Modifier un tenant** : Modal → `PATCH /api/tenants/[id]` (nom, plan, statut) — proxy corrigé vers `AUTH_SERVICE_URL`
+- [x] **Créer un tenant** : Modal `TenantForm` → `POST /api/tenants` (via auth-service)
 
 **Validation** :
 
@@ -576,8 +576,8 @@ Créer dans `components/ui/` :
 
 ### Étape 13.2 — Navigation admin
 
-- [ ] Créer `components/layout/AdminSidebar.tsx` visible uniquement pour `platform_admin`
-- [ ] Liens : Tenants, Toutes les commandes, Toutes les notifications, Utilisateurs
+- [x] Navigation admin intégrée dans `components/layout/Sidebar.tsx` (section `ADMIN_NAV`) visible uniquement pour `platform_admin`
+- [x] Liens : Tenants (`/admin/tenants`), Toutes les commandes, Paiements, Notifications, Utilisateurs (`/admin/users`)
 
 ---
 
@@ -640,7 +640,7 @@ Créer dans `components/ui/` :
 | **10 — Dashboard** | 10.1 | Phases 6+7 | KPIs basés sur données réelles |
 | **11 — Produits admin** | 11.1 | Phase 3 | CRUD produits complet |
 | **12 — Onboarding** | 12.1 | Phase 2 | Wizard complet, progression sauvegardée |
-| **13 — Admin** | 13.1 → 13.2 | Phase 2 | Gestion tenants fonctionnelle |
+| **13 — Admin** ✅ | 13.1 → 13.2 | Phase 2 | Gestion tenants fonctionnelle |
 | **14 — Qualité** | 14.1 → 14.4 | Toutes phases | Pas d'erreur console, mobile OK |
 
 ---
