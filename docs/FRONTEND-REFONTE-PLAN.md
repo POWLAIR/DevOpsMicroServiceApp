@@ -484,15 +484,15 @@ Créer dans `components/ui/` :
 
 **URL** : `/dashboard` (marchands et admins uniquement)
 
-- [ ] **KPIs** (4 cartes) chargés en parallèle :
+- [x] **KPIs** (4 cartes) chargés en parallèle :
   - Chiffre d'affaires : somme des `amount` des paiements `succeeded` (depuis `GET /api/payments`)
   - Nombre de commandes : count depuis `GET /api/orders`
   - Panier moyen : CA / nb commandes
   - Nombre de produits actifs : count depuis `GET /api/products`
-- [ ] Commission plateforme (5% du CA) et Net marchand
-- [ ] **Tableau des dernières commandes** (5 plus récentes) : colonnes ID, Statut, Total
-- [ ] **Accès rapides** : boutons vers `/orders`, `/products`, `/payments`
-- [ ] Skeleton sur chaque KPI en attente
+- [x] Commission plateforme (5% du CA) et Net marchand
+- [x] **Tableau des dernières commandes** (5 plus récentes) : colonnes ID, Statut, Total
+- [x] **Accès rapides** : boutons vers `/orders`, `/products`, `/payments`
+- [x] Skeleton sur chaque KPI en attente
 
 **Validation** :
 
@@ -507,15 +507,15 @@ Créer dans `components/ui/` :
 
 **URL** : `/products/manage` (marchands et admins uniquement)
 
-- [ ] Appel `GET /api/products` (vue tenant, pas marketplace)
-- [ ] Tableau avec colonnes : Image, Nom, Catégorie, Prix, Stock, Actif, Actions (Éditer, Supprimer)
-- [ ] **Créer un produit** : bouton → Modal `ProductForm` :
+- [x] Appel `GET /api/products` (vue tenant, pas marketplace)
+- [x] Tableau avec colonnes : Image, Nom, Catégorie, Prix, Stock, Actif, Actions (Éditer, Supprimer)
+- [x] **Créer un produit** : bouton → Modal `ProductForm` :
   - Champs : nom, description, prix, catégorie, URL image, stock initial
   - Appel `POST /api/products`
-- [ ] **Éditer un produit** : Modal pré-remplie → `PUT /api/products/[id]`
-- [ ] **Mettre à jour le stock** : input inline dans le tableau → `PATCH /api/products/[id]/stock`
-- [ ] **Supprimer un produit** : confirmation Modal → `DELETE /api/products/[id]`
-- [ ] Pagination
+- [x] **Éditer un produit** : Modal pré-remplie → `PUT /api/products/[id]`
+- [x] **Mettre à jour le stock** : input inline dans le tableau → `PATCH /api/products/[id]/stock`
+- [x] **Supprimer un produit** : confirmation Modal → `DELETE /api/products/[id]`
+- [x] Pagination
 
 **Validation** :
 

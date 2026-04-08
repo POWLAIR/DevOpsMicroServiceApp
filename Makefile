@@ -1,18 +1,13 @@
 # DevOps MicroService App — Commandes locales
-# Usage : make dev | make hotreload | make up | make seed | make down
+# Usage : make dev | make up | make seed | make down
 
-.PHONY: dev hotreload up seed down logs
+.PHONY: dev up seed down logs
 
-# Démarrage local complet : build + up + seed (usage recommandé en local)
+# Démarrage local complet avec hot reload : build + up + seed (usage recommandé en local)
 dev:
 	./scripts/start-local.sh
 
-# Démarrage en mode hot reload (toutes les modifications de code sont prises en compte à chaud)
-# Chaque service surveille ses fichiers sources et se recompile/redémarre automatiquement.
-hotreload:
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
-
-# Démarrage des conteneurs uniquement (sans seed)
+# Démarrage des conteneurs uniquement en production (sans seed, sans hot reload)
 up:
 	docker compose up -d --build
 

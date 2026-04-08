@@ -23,10 +23,10 @@ echo "============================================"
 echo "🚀 DÉMARRAGE LOCAL — Build + Up + Seed"
 echo "============================================"
 
-# 1. Build et démarrage
+# 1. Build et démarrage avec hot reload activé
 echo ""
-echo "▶ Build et démarrage des conteneurs..."
-$COMPOSE up -d --build
+echo "▶ Build et démarrage des conteneurs (hot reload activé)..."
+$COMPOSE -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 
 # 2. Attendre que les services soient healthy
 echo ""
